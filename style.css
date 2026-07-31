@@ -389,3 +389,43 @@ footer.site-footer a:hover { color: #fff; }
 .stat-card { background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px; text-align: center; }
 .stat-card strong { display: block; font-size: 1.7rem; color: var(--navy); }
 .stat-card span { font-size: .82rem; color: var(--text-light); }
+
+/* ===== Home photo slider ===== */
+.photo-slider {
+  position: relative;
+  width: 100%;
+  height: 440px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+.photo-slider .slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+.photo-slider .slide.active { opacity: 1; }
+.photo-slider .slider-dots {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 2;
+}
+.photo-slider .slider-dots span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.5);
+  transition: background .3s ease;
+}
+.photo-slider .slider-dots span.active { background: var(--gold); }
+@media (max-width: 760px) {
+  .photo-slider { height: 260px; }
+}
