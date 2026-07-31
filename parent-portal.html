@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Эцэг эхийн портал — Мандах Од сургууль</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">
+    <span>📞 +976 7011-2233 &nbsp; | &nbsp; ✉️ info@mandakhod-surguuli.mn</span>
+    <span><a href="index.html">Нүүр хуудас руу буцах</a></span>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="nav-wrap">
+    <a href="index.html" class="brand">
+      <span class="logo">МО</span>
+      <span class="name-block">
+        <strong>Мандах Од сургууль</strong>
+        <small>Улсын ерөнхий боловсролын сургууль (жишээ)</small>
+      </span>
+    </a>
+    <button class="nav-toggle" aria-label="Цэс">☰</button>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="index.html">Нүүр</a></li>
+        <li><a href="about.html">Сургуулийн тухай</a></li>
+        <li><a href="staff.html">Багш нар</a></li>
+        <li><a href="schedule.html">Хичээлийн хуваарь</a></li>
+        <li><a href="contact.html">Холбоо барих</a></li>
+        <li><a href="parent-portal.html" class="portal-link active">Эцэг эхийн портал</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<section class="page-head">
+  <div class="container">
+    <h1>Эцэг эхийн портал</h1>
+    <p>Хүүхдийнхээ дүн, ирц, зарлалыг онлайнаар шалгах</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <!-- ЛОГИН ФОРМ -->
+    <div id="login-view" class="login-wrap">
+      <h2>Нэвтрэх</h2>
+      <p class="sub">Эцэг эхийн бүртгэлээрээ нэвтэрнэ үү</p>
+      <form id="login-form">
+        <div class="form-field">
+          <label for="username">Хэрэглэгчийн нэр</label>
+          <input type="text" id="username" placeholder="parent" required>
+        </div>
+        <div class="form-field">
+          <label for="password">Нууц үг</label>
+          <input type="password" id="password" placeholder="••••••••" required>
+        </div>
+        <div id="login-error" class="info-box warn hidden" style="margin-bottom:16px;">Хэрэглэгчийн нэр эсвэл нууц үг буруу байна.</div>
+        <button type="submit" class="btn btn-block">Нэвтрэх</button>
+      </form>
+      <div class="demo-creds">
+        <strong>Демо хандалт:</strong> хэрэглэгчийн нэр <code>parent</code>, нууц үг <code>parent123</code><br>
+        (Энэ бол жишээ загвар — бодит сервер, өгөгдлийн бааз холбогдоогүй болно.)
+      </div>
+    </div>
+
+    <!-- ДҮН, ИРЦИЙН ХЭСЭГ -->
+    <div id="dashboard-view" class="hidden">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+        <div class="info-box" style="margin:0;">👋 Сайн байна уу! Энэ бол жишээ өгөгдөл бүхий демо хяналтын самбар.</div>
+        <button id="logout-btn" class="btn btn-secondary">Гарах</button>
+      </div>
+
+      <div class="dashboard-grid">
+        <aside class="side-panel">
+          <div class="student-id">
+            <div class="avatar">БТ</div>
+            <h3 style="margin-bottom:2px;">Б. Тэмүүлэн</h3>
+            <div class="meta">9А анги • Сурагчийн код: 09А-014</div>
+          </div>
+          <ul style="list-style:none; padding:0; margin:0;">
+            <li style="margin-bottom:10px;"><strong>Ангийн багш:</strong><br>Г. Түвшинжаргал</li>
+            <li style="margin-bottom:10px;"><strong>Элссэн он:</strong><br>2018</li>
+            <li><strong>Байдал:</strong><br><span class="badge-grade a">Идэвхтэй суралцаж байна</span></li>
+          </ul>
+        </aside>
+
+        <div>
+          <div class="stat-row">
+            <div class="stat-card"><strong>94.2</strong><span>Дундаж дүн</span></div>
+            <div class="stat-card"><strong>96%</strong><span>Ирц</span></div>
+            <div class="stat-card"><strong>2</strong><span>Хоцорсон удаа</span></div>
+          </div>
+
+          <h3>Улирлын дүн (жишээ)</h3>
+          <div class="table-wrap" style="margin-bottom:28px;">
+            <table>
+              <thead><tr><th>Хичээл</th><th>1-р улирал</th><th>2-р улирал</th><th>Дундаж</th><th>Үнэлгээ</th></tr></thead>
+              <tbody>
+                <tr><td>Математик</td><td>95</td><td>97</td><td>96</td><td><span class="badge-grade a">A</span></td></tr>
+                <tr><td>Физик</td><td>89</td><td>92</td><td>90.5</td><td><span class="badge-grade a">A</span></td></tr>
+                <tr><td>Монгол хэл</td><td>91</td><td>88</td><td>89.5</td><td><span class="badge-grade b">B+</span></td></tr>
+                <tr><td>Англи хэл</td><td>97</td><td>98</td><td>97.5</td><td><span class="badge-grade a">A</span></td></tr>
+                <tr><td>Хими</td><td>85</td><td>90</td><td>87.5</td><td><span class="badge-grade b">B+</span></td></tr>
+                <tr><td>Биеийн тамир</td><td>98</td><td>99</td><td>98.5</td><td><span class="badge-grade a">A</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Сүүлийн ирц (жишээ)</h3>
+          <div class="table-wrap" style="margin-bottom:28px;">
+            <table>
+              <thead><tr><th>Огноо</th><th>Төлөв</th><th>Тэмдэглэл</th></tr></thead>
+              <tbody>
+                <tr><td>2026.07.29</td><td><span class="badge-grade a">Ирсэн</span></td><td>—</td></tr>
+                <tr><td>2026.07.28</td><td><span class="badge-grade c">Хоцорсон</span></td><td>10 минут хоцорсон</td></tr>
+                <tr><td>2026.07.27</td><td><span class="badge-grade a">Ирсэн</span></td><td>—</td></tr>
+                <tr><td>2026.07.24</td><td><span class="badge-grade a">Ирсэн</span></td><td>—</td></tr>
+                <tr><td>2026.07.23</td><td><span class="badge-grade a">Ирсэн</span></td><td>—</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Багшийн зарлал</h3>
+          <div class="card"><div class="card-body">
+            <span class="tag">Математик — Г. Түвшинжаргал</span>
+            <p style="margin-bottom:0;">8-р сарын 5-нд бататгах шалгалт өгнө. Дасгал ажлын дэвтрийг бүрэн бөглөж ирээрэй.</p>
+          </div></div>
+          <div class="card" style="margin-top:12px;"><div class="card-body">
+            <span class="tag gold">Ангийн багш — Г. Түвшинжаргал</span>
+            <p style="margin-bottom:0;">8-р сарын 25-нд эцэг эхийн уулзалт болно. Заавал оролцоно уу.</p>
+          </div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <h4>Мандах Од сургууль</h4>
+      <p>Улсын ерөнхий боловсролын сургууль. Энэхүү сайт нь жишээ өгөгдлөөр бэлтгэсэн загвар (template) бөгөөд бодит мэдээллээр солиход бэлэн.</p>
+    </div>
+    <div>
+      <h4>Холбоос</h4>
+      <ul>
+        <li><a href="about.html">Сургуулийн тухай</a></li>
+        <li><a href="staff.html">Багш нар</a></li>
+        <li><a href="schedule.html">Хуваарь</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Хэсгүүд</h4>
+      <ul>
+        <li><a href="contact.html">Холбоо барих</a></li>
+        <li><a href="parent-portal.html">Эцэг эхийн портал</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Хаяг</h4>
+      <ul>
+        <li>Улаанбаатар хот, Баянзүрх дүүрэг, 5-р хороо</li>
+        <li>+976 7011-2233</li>
+        <li>info@mandakhod-surguuli.mn</li>
+      </ul>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <span>© 2026 Мандах Од сургууль. Бүх эрх хуулиар хамгаалагдсан.</span>
+    <span>Жишээ загвар сайт</span>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+<script>
+  (function () {
+    var loginForm = document.getElementById("login-form");
+    var loginView = document.getElementById("login-view");
+    var dashboardView = document.getElementById("dashboard-view");
+    var loginError = document.getElementById("login-error");
+    var logoutBtn = document.getElementById("logout-btn");
+
+    var DEMO_USER = "parent";
+    var DEMO_PASS = "parent123";
+
+    loginForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var u = document.getElementById("username").value.trim();
+      var p = document.getElementById("password").value;
+      if (u === DEMO_USER && p === DEMO_PASS) {
+        loginError.classList.add("hidden");
+        loginView.classList.add("hidden");
+        dashboardView.classList.remove("hidden");
+      } else {
+        loginError.classList.remove("hidden");
+      }
+    });
+
+    logoutBtn.addEventListener("click", function () {
+      dashboardView.classList.add("hidden");
+      loginView.classList.remove("hidden");
+      loginForm.reset();
+    });
+  })();
+</script>
+</body>
+</html>
