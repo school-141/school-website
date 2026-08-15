@@ -47,70 +47,8 @@
 
 <section class="section">
   <div class="container">
-    <div class="grid grid-3">
-      <div class="card staff-card">
-        <div class="avatar">Т.Б</div>
-        <div class="card-body">
-          <h3>Т.Баасанцэцэг</h3>
-          <div class="role">Захирал</div>
-        </div>
-      </div>
-      <div class="card staff-card">
-        <div class="avatar">Ч.Н</div>
-        <div class="card-body">
-          <h3>Ч.Нямсүрэн</h3>
-          <div class="role">Сургалтын менежер</div>
-        </div>
-      </div>
-      <div class="card staff-card">
-        <div class="avatar">Ц.Т</div>
-        <div class="card-body">
-          <h3>Ц.Тунгалагтамир</h3>
-          <div class="role">Сургалтын менежер</div>
-        </div>
-      </div>
-      <div class="card staff-card">
-        <div class="avatar">Х.У</div>
-        <div class="card-body">
-          <h3>Х.Урнаа</h3>
-          <div class="role">Сургалтын менежер</div>
-        </div>
-      </div>
-      <div class="card staff-card">
-        <div class="avatar">Э.О</div>
-        <div class="card-body">
-          <h3>Э.Онон</h3>
-          <div class="role">Сургалтын менежер</div>
-        </div>
-      </div>
-      <div class="card staff-card">
-        <div class="avatar">Ш.Э</div>
-        <div class="card-body">
-          <h3>Ш.Эрдэнэболор</h3>
-          <div class="role">Нийгмийн ажилтан</div>
-        </div>
-      </div>
-      <div class="card staff-card">
-        <div class="avatar">Э.А</div>
-        <div class="card-body">
-          <h3>Э.Ариунболор</h3>
-          <div class="role">Сэтгэлзүйч</div>
-        </div>
-      </div>
-      <div class="card staff-card">
-        <div class="avatar">Б.М</div>
-        <div class="card-body">
-          <h3>Б.Мөнхбаяр</h3>
-          <div class="role">Нийгмийн ажилтан</div>
-        </div>
-      </div>
-      <div class="card staff-card">
-        <div class="avatar">С.О</div>
-        <div class="card-body">
-          <h3>С.Одонгоо</h3>
-          <div class="role">Эмч</div>
-        </div>
-      </div>
+    <div class="grid grid-3" id="staff-container">
+      <p class="meta">Ачааллаж байна...</p>
     </div>
   </div>
 </section>
@@ -152,5 +90,46 @@
 </footer>
 
 <script src="script.js"></script>
+<script type="module">
+  import { db } from "./firebase-config.js";
+  import { collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+  function initials(name) {
+    if (!name) return "?";
+    var parts = name.split(".");
+    if (parts.length >= 2 && parts[0].length === 1) {
+      return parts[0] + "." + parts[1].charAt(0);
+    }
+    return name.charAt(0);
+  }
+
+  (async function loadStaff() {
+    var container = document.getElementById("staff-container");
+    try {
+      var q = query(collection(db, "staff"), orderBy("createdAt", "asc"));
+      var snap = await getDocs(q);
+      if (snap.empty) {
+        container.innerHTML = '<p class="meta">Одоогоор мэдээлэл алга байна.</p>';
+        return;
+      }
+      container.innerHTML = "";
+      snap.forEach(function (docSnap) {
+        var d = docSnap.data();
+        var card = document.createElement("div");
+        card.className = "card staff-card";
+        card.innerHTML =
+          '<div class="avatar">' + initials(d.name) + '</div>' +
+          '<div class="card-body">' +
+          '<h3>' + d.name + '</h3>' +
+          '<div class="role">' + d.role + '</div>' +
+          '</div>';
+        container.appendChild(card);
+      });
+    } catch (err) {
+      container.innerHTML = '<p class="meta">Мэдээлэл ачаалахад алдаа гарлаа.</p>';
+      console.error(err);
+    }
+  })();
+</script>
 </body>
 </html>

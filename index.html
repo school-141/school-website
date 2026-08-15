@@ -84,34 +84,8 @@
       </div>
       <a href="#">Бүгдийг харах →</a>
     </div>
-    <div class="grid grid-3">
-      <div class="card">
-        <div class="thumb">📢</div>
-        <div class="card-body">
-          <span class="tag">Зарлал</span>
-          <div class="meta">2026.07.28</div>
-          <h3>Хичээлийн шинэ жил 9-р сарын 1-нд эхэлнэ</h3>
-          <p>Бүх ангийн сурагчид өглөөний 8:30 цагт талбайд угтах ёслолд оролцоно уу.</p>
-        </div>
-      </div>
-      <div class="card">
-        <div class="thumb">🏆</div>
-        <div class="card-body">
-          <span class="tag gold">Амжилт</span>
-          <div class="meta">2026.07.20</div>
-          <h3>Улсын математикийн олимпиадад 3-р байр</h3>
-          <p>9-р ангийн сурагч Б.Тэмүүлэн улсын шатны олимпиадад 3-р байр эзэллээ.</p>
-        </div>
-      </div>
-      <div class="card">
-        <div class="thumb">🗓️</div>
-        <div class="card-body">
-          <span class="tag">Үйл явдал</span>
-          <div class="meta">2026.07.15</div>
-          <h3>Эцэг эхийн хурал зохион байгуулагдана</h3>
-          <p>8-р сарын 25-нд ангиудаар эцэг эхийн уулзалт, хурал болно.</p>
-        </div>
-      </div>
+    <div class="grid grid-3" id="news-container">
+      <p class="meta">Мэдээ ачааллаж байна...</p>
     </div>
   </div>
 </section>
@@ -181,5 +155,48 @@
 </footer>
 
 <script src="script.js"></script>
+<script type="module">
+  import { db } from "./firebase-config.js";
+  import { collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+  var tagClass = { "Амжилт": "tag gold", "Зарлал": "tag", "Үйл явдал": "tag" };
+
+  function formatDate(iso) {
+    if (!iso) return "";
+    var parts = iso.split("-");
+    if (parts.length !== 3) return iso;
+    return parts[0] + "." + parts[1] + "." + parts[2];
+  }
+
+  (async function loadNews() {
+    var container = document.getElementById("news-container");
+    try {
+      var q = query(collection(db, "news"), orderBy("date", "desc"), limit(6));
+      var snap = await getDocs(q);
+      if (snap.empty) {
+        container.innerHTML = '<p class="meta">Одоогоор мэдээ алга байна.</p>';
+        return;
+      }
+      container.innerHTML = "";
+      snap.forEach(function (docSnap) {
+        var d = docSnap.data();
+        var card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML =
+          '<div class="thumb">' + (d.emoji || "📢") + '</div>' +
+          '<div class="card-body">' +
+          '<span class="' + (tagClass[d.tag] || "tag") + '">' + d.tag + '</span>' +
+          '<div class="meta">' + formatDate(d.date) + '</div>' +
+          '<h3>' + d.heading + '</h3>' +
+          '<p>' + d.body + '</p>' +
+          '</div>';
+        container.appendChild(card);
+      });
+    } catch (err) {
+      container.innerHTML = '<p class="meta">Мэдээ ачаалахад алдаа гарлаа.</p>';
+      console.error(err);
+    }
+  })();
+</script>
 </body>
 </html>
