@@ -125,6 +125,12 @@
                 <label for="staff-role">Албан тушаал</label>
                 <input type="text" id="staff-role" required placeholder="Захирал">
               </div>
+              <div class="form-field">
+                <label for="staff-photo">Зураг (заавал биш)</label>
+                <input type="file" id="staff-photo" accept="image/*">
+                <img id="staff-photo-preview" class="admin-image-preview hidden" alt="">
+                <button type="button" id="staff-photo-remove" class="btn-small delete hidden" style="margin-top:8px;">Зураг устгах</button>
+              </div>
               <button type="submit" class="btn">Хадгалах</button>
               <button type="button" id="staff-cancel" class="btn btn-secondary hidden">Цуцлах</button>
             </form>
@@ -368,12 +374,49 @@
   var staffIdField = document.getElementById("staff-id");
   var staffCancelBtn = document.getElementById("staff-cancel");
   var staffFormTitle = document.getElementById("staff-form-title");
+  var staffPhotoInput = document.getElementById("staff-photo");
+  var staffPhotoPreview = document.getElementById("staff-photo-preview");
+  var staffPhotoRemoveBtn = document.getElementById("staff-photo-remove");
+  var pendingStaffPhoto = null;
+
+  function showStaffPhotoPreview(dataUrl) {
+    if (dataUrl) {
+      staffPhotoPreview.src = dataUrl;
+      staffPhotoPreview.classList.remove("hidden");
+      staffPhotoRemoveBtn.classList.remove("hidden");
+    } else {
+      staffPhotoPreview.src = "";
+      staffPhotoPreview.classList.add("hidden");
+      staffPhotoRemoveBtn.classList.add("hidden");
+    }
+  }
+
+  staffPhotoInput.addEventListener("change", async function (e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var dataUrl = await resizeImageToDataUrl(file, 500);
+    if (dataUrl.length > 700000) {
+      alert("Зураг хэт том байна. Өөр, жижиг зураг сонгоно уу.");
+      staffPhotoInput.value = "";
+      return;
+    }
+    pendingStaffPhoto = dataUrl;
+    showStaffPhotoPreview(dataUrl);
+  });
+
+  staffPhotoRemoveBtn.addEventListener("click", function () {
+    pendingStaffPhoto = null;
+    staffPhotoInput.value = "";
+    showStaffPhotoPreview(null);
+  });
 
   function resetStaffForm() {
     staffForm.reset();
     staffIdField.value = "";
     staffFormTitle.textContent = "Ажилтан нэмэх";
     staffCancelBtn.classList.add("hidden");
+    pendingStaffPhoto = null;
+    showStaffPhotoPreview(null);
   }
 
   staffCancelBtn.addEventListener("click", resetStaffForm);
@@ -383,6 +426,7 @@
     var payload = {
       name: document.getElementById("staff-name").value.trim(),
       role: document.getElementById("staff-role").value.trim(),
+      photo: pendingStaffPhoto,
       updatedAt: serverTimestamp()
     };
     var id = staffIdField.value;
@@ -407,7 +451,9 @@
       var item = document.createElement("div");
       item.className = "admin-list-item";
       item.innerHTML =
-        '<div><h4>' + d.name + '</h4><p>' + d.role + '</p></div>' +
+        '<div class="admin-list-item-main">' +
+        (d.photo ? '<img class="thumb-mini" src="' + d.photo + '">' : '') +
+        '<div><h4>' + d.name + '</h4><p>' + d.role + '</p></div></div>' +
         '<div class="admin-list-actions">' +
         '<button class="btn-small edit" data-action="edit">Засах</button>' +
         '<button class="btn-small delete" data-action="delete">Устгах</button>' +
@@ -416,6 +462,8 @@
         staffIdField.value = docSnap.id;
         document.getElementById("staff-name").value = d.name;
         document.getElementById("staff-role").value = d.role;
+        pendingStaffPhoto = d.photo || null;
+        showStaffPhotoPreview(pendingStaffPhoto);
         staffFormTitle.textContent = "Ажилтан засах";
         staffCancelBtn.classList.remove("hidden");
         window.scrollTo({ top: 0, behavior: "smooth" });

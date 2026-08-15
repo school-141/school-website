@@ -117,8 +117,11 @@
         var d = docSnap.data();
         var card = document.createElement("div");
         card.className = "card staff-card";
+        var avatarHtml = d.photo
+          ? '<div class="avatar"><img src="' + d.photo + '" alt=""></div>'
+          : '<div class="avatar">' + initials(d.name) + '</div>';
         card.innerHTML =
-          '<div class="avatar">' + initials(d.name) + '</div>' +
+          avatarHtml +
           '<div class="card-body">' +
           '<h3>' + d.name + '</h3>' +
           '<div class="role">' + d.role + '</div>' +
