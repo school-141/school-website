@@ -523,7 +523,7 @@ footer.site-footer a:hover { color: #fff; }
   border-radius: 6px;
   border: 1px solid var(--border);
 }
-.admin-image-preview-row .preview-item button {
+.admin-image-preview-row .preview-item .remove-btn {
   position: absolute;
   top: -7px;
   right: -7px;
@@ -537,6 +537,34 @@ footer.site-footer a:hover { color: #fff; }
   line-height: 1;
   cursor: pointer;
   padding: 0;
+  z-index: 2;
+}
+.admin-image-preview-row .preview-move-row {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+.admin-image-preview-row .preview-move-row button {
+  flex: 1;
+  background: #eaf1fb;
+  color: var(--blue);
+  border: none;
+  border-radius: 4px;
+  font-size: 11px;
+  padding: 3px 0;
+  cursor: pointer;
+}
+.admin-image-preview-row .preview-move-row button:disabled {
+  opacity: .35;
+  cursor: default;
+}
+.admin-list-actions .reorder {
+  background: #eef2f8;
+  color: var(--navy);
+}
+.admin-list-actions button:disabled {
+  opacity: .3;
+  cursor: default;
 }
 .news-gallery {
   display: grid;

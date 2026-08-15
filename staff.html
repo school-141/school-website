@@ -112,9 +112,15 @@
         container.innerHTML = '<p class="meta">Одоогоор мэдээлэл алга байна.</p>';
         return;
       }
+      var docs = [];
+      snap.forEach(function (docSnap) { docs.push(docSnap.data()); });
+      docs.sort(function (a, b) {
+        var ao = typeof a.order === "number" ? a.order : Infinity;
+        var bo = typeof b.order === "number" ? b.order : Infinity;
+        return ao - bo;
+      });
       container.innerHTML = "";
-      snap.forEach(function (docSnap) {
-        var d = docSnap.data();
+      docs.forEach(function (d) {
         var card = document.createElement("div");
         card.className = "card staff-card";
         var avatarHtml = d.photo

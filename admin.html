@@ -246,6 +246,7 @@
       img.src = dataUrl;
       var removeBtn = document.createElement("button");
       removeBtn.type = "button";
+      removeBtn.className = "remove-btn";
       removeBtn.textContent = "×";
       removeBtn.addEventListener("click", function () {
         pendingNewsImages.splice(idx, 1);
@@ -253,6 +254,35 @@
       });
       wrap.appendChild(img);
       wrap.appendChild(removeBtn);
+
+      if (pendingNewsImages.length > 1) {
+        var moveRow = document.createElement("div");
+        moveRow.className = "preview-move-row";
+        var leftBtn = document.createElement("button");
+        leftBtn.type = "button";
+        leftBtn.textContent = "◀";
+        leftBtn.disabled = idx === 0;
+        leftBtn.addEventListener("click", function () {
+          var tmp = pendingNewsImages[idx - 1];
+          pendingNewsImages[idx - 1] = pendingNewsImages[idx];
+          pendingNewsImages[idx] = tmp;
+          renderNewsImagePreviews();
+        });
+        var rightBtn = document.createElement("button");
+        rightBtn.type = "button";
+        rightBtn.textContent = "▶";
+        rightBtn.disabled = idx === pendingNewsImages.length - 1;
+        rightBtn.addEventListener("click", function () {
+          var tmp = pendingNewsImages[idx + 1];
+          pendingNewsImages[idx + 1] = pendingNewsImages[idx];
+          pendingNewsImages[idx] = tmp;
+          renderNewsImagePreviews();
+        });
+        moveRow.appendChild(leftBtn);
+        moveRow.appendChild(rightBtn);
+        wrap.appendChild(moveRow);
+      }
+
       newsImagePreviewsEl.appendChild(wrap);
     });
   }
@@ -421,6 +451,8 @@
 
   staffCancelBtn.addEventListener("click", resetStaffForm);
 
+  var latestStaffDocs = [];
+
   staffForm.addEventListener("submit", async function (e) {
     e.preventDefault();
     var payload = {
@@ -434,6 +466,7 @@
       await updateDoc(doc(db, "staff", id), payload);
     } else {
       payload.createdAt = serverTimestamp();
+      payload.order = latestStaffDocs.length;
       await addDoc(collection(db, "staff"), payload);
     }
     resetStaffForm();
@@ -443,23 +476,67 @@
     var listEl = document.getElementById("staff-list");
     if (snap.empty) {
       listEl.innerHTML = '<p class="meta">Жагсаалт хоосон байна.</p>';
+      latestStaffDocs = [];
       return;
     }
-    listEl.innerHTML = "";
+    var docs = [];
     snap.forEach(function (docSnap) {
-      var d = docSnap.data();
-      var item = document.createElement("div");
-      item.className = "admin-list-item";
-      item.innerHTML =
+      docs.push({ id: docSnap.id, data: docSnap.data() });
+    });
+    // order талбартай бол түүгээр, байхгүй бол одоогийн (createdAt) байрлалаар эрэмбэлнэ
+    docs.sort(function (a, b) {
+      var ao = typeof a.data.order === "number" ? a.data.order : Infinity;
+      var bo = typeof b.data.order === "number" ? b.data.order : Infinity;
+      return ao - bo;
+    });
+    // order талбар дутуу байгаа бол нэг удаа автоматаар нөхнө
+    docs.forEach(function (item, idx) {
+      if (typeof item.data.order !== "number") {
+        updateDoc(doc(db, "staff", item.id), { order: idx });
+      }
+    });
+    latestStaffDocs = docs;
+
+    listEl.innerHTML = "";
+    docs.forEach(function (item, idx) {
+      var d = item.data;
+      var docId = item.id;
+      var el = document.createElement("div");
+      el.className = "admin-list-item";
+      el.innerHTML =
         '<div class="admin-list-item-main">' +
         (d.photo ? '<img class="thumb-mini" src="' + d.photo + '">' : '') +
         '<div><h4>' + d.name + '</h4><p>' + d.role + '</p></div></div>' +
         '<div class="admin-list-actions">' +
+        '<button class="btn-small reorder" data-action="up">▲</button>' +
+        '<button class="btn-small reorder" data-action="down">▼</button>' +
         '<button class="btn-small edit" data-action="edit">Засах</button>' +
         '<button class="btn-small delete" data-action="delete">Устгах</button>' +
         '</div>';
-      item.querySelector('[data-action="edit"]').addEventListener("click", function () {
-        staffIdField.value = docSnap.id;
+
+      var upBtn = el.querySelector('[data-action="up"]');
+      var downBtn = el.querySelector('[data-action="down"]');
+      upBtn.disabled = idx === 0;
+      downBtn.disabled = idx === docs.length - 1;
+
+      upBtn.addEventListener("click", async function () {
+        if (idx === 0) return;
+        var neighbor = docs[idx - 1];
+        var myOrder = typeof d.order === "number" ? d.order : idx;
+        var neighborOrder = typeof neighbor.data.order === "number" ? neighbor.data.order : idx - 1;
+        await updateDoc(doc(db, "staff", docId), { order: neighborOrder });
+        await updateDoc(doc(db, "staff", neighbor.id), { order: myOrder });
+      });
+      downBtn.addEventListener("click", async function () {
+        if (idx === docs.length - 1) return;
+        var neighbor = docs[idx + 1];
+        var myOrder = typeof d.order === "number" ? d.order : idx;
+        var neighborOrder = typeof neighbor.data.order === "number" ? neighbor.data.order : idx + 1;
+        await updateDoc(doc(db, "staff", docId), { order: neighborOrder });
+        await updateDoc(doc(db, "staff", neighbor.id), { order: myOrder });
+      });
+      el.querySelector('[data-action="edit"]').addEventListener("click", function () {
+        staffIdField.value = docId;
         document.getElementById("staff-name").value = d.name;
         document.getElementById("staff-role").value = d.role;
         pendingStaffPhoto = d.photo || null;
@@ -468,10 +545,10 @@
         staffCancelBtn.classList.remove("hidden");
         window.scrollTo({ top: 0, behavior: "smooth" });
       });
-      item.querySelector('[data-action="delete"]').addEventListener("click", function () {
-        if (confirm(d.name + "-г устгах уу?")) deleteDoc(doc(db, "staff", docSnap.id));
+      el.querySelector('[data-action="delete"]').addEventListener("click", function () {
+        if (confirm(d.name + "-г устгах уу?")) deleteDoc(doc(db, "staff", docId));
       });
-      listEl.appendChild(item);
+      listEl.appendChild(el);
     });
   });
 
@@ -494,6 +571,7 @@
     ];
     for (var i = 0; i < seedData.length; i++) {
       seedData[i].createdAt = serverTimestamp();
+      seedData[i].order = i;
       await addDoc(collection(db, "staff"), seedData[i]);
     }
   });
