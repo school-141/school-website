@@ -1,6 +1,28 @@
 // ===== Ерөнхий скрипт: мобайл цэс + эцэг эхийн порталын демо =====
 
+// Google Translate виджет эхлүүлэх (global байх ёстой)
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement(
+    { pageLanguage: "mn", includedLanguages: "en,mn", autoDisplay: false },
+    "google_translate_element"
+  );
+}
+
 document.addEventListener("DOMContentLoaded", function () {
+  // Хэл солих туг товч
+  var langBtn = document.getElementById("lang-toggle-btn");
+  if (langBtn) {
+    langBtn.addEventListener("click", function () {
+      var select = document.querySelector(".goog-te-combo");
+      if (!select) {
+        alert("Орчуулгын үйлчилгээ ачаалж байна, түр хүлээгээд дахин дарна уу.");
+        return;
+      }
+      select.value = select.value !== "en" ? "en" : "mn";
+      select.dispatchEvent(new Event("change"));
+    });
+  }
+
   // Mobile nav toggle
   var toggle = document.querySelector(".nav-toggle");
   var nav = document.querySelector(".main-nav");

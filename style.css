@@ -65,6 +65,30 @@ p { margin: 0 0 1em; color: var(--text); }
 .topbar a { color: #cfd9ea; }
 .topbar span + span { margin-left: 18px; }
 
+/* ===== Хэл сонгох (Google Translate) ===== */
+.lang-flag-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.35);
+  transition: box-shadow .2s ease;
+}
+.lang-flag-btn:hover { box-shadow: 0 0 0 1px rgba(255,255,255,.7); }
+.lang-flag-btn img { display: block; width: 22px; height: 16px; }
+
+/* Google Translate-ийн үндсэн виджет, дээд banner-ийг нуух */
+#google_translate_element { display: none !important; }
+.goog-te-banner-frame.skiptranslate { display: none !important; }
+body { top: 0px !important; }
+.goog-tooltip, .goog-tooltip:hover { display: none !important; }
+.goog-text-highlight { background: none !important; box-shadow: none !important; }
+
 /* ===== Header / Nav ===== */
 header.site-header {
   background: var(--navy);
