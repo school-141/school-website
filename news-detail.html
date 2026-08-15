@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Мэдээ — 141 дүгээр сургууль</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="container">
+    <span>📞 +976 7011-2233 &nbsp; | &nbsp; ✉️ info@surguuli141.edu.mn</span>
+    <span><a href="https://edumap.mn/" target="_blank" rel="noopener">Эцэг эхийн портал</a></span>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="nav-wrap">
+    <a href="index.html" class="brand">
+      <img src="logo.png" alt="Сургуулийн лого" class="logo-img">
+      <span class="name-block">
+        <strong>141 дүгээр сургууль</strong>
+        <small>Нийслэлийн ерөнхий боловсролын сургууль</small>
+      </span>
+    </a>
+    <button class="nav-toggle" aria-label="Цэс">☰</button>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="index.html">Нүүр</a></li>
+        <li><a href="about.html">Сургуулийн тухай</a></li>
+        <li><a href="staff.html">Багш нар</a></li>
+        <li><a href="schedule.html">Хичээлийн хуваарь</a></li>
+        <li><a href="contact.html">Холбоо барих</a></li>
+        <li><a href="https://edumap.mn/" target="_blank" rel="noopener" class="portal-link">Эцэг эхийн портал</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<section class="page-head">
+  <div class="container">
+    <p style="margin-bottom:8px;"><a href="index.html" style="color:#b9c6dc;">← Нүүр хуудас</a></p>
+    <h1 id="news-heading">Ачааллаж байна...</h1>
+    <p id="news-meta"></p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container" style="max-width:820px;">
+    <div id="news-gallery" class="news-gallery"></div>
+    <p id="news-body" class="news-body-text"></p>
+    <p style="margin-top:30px;"><a href="index.html" class="btn btn-secondary">← Бүх мэдээ рүү буцах</a></p>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <h4>141 дүгээр сургууль</h4>
+      <p>Улсын ерөнхий боловсролын сургууль. Энэхүү сайт нь жишээ өгөгдлөөр бэлтгэсэн загвар (template) бөгөөд бодит мэдээллээр солиход бэлэн.</p>
+    </div>
+    <div>
+      <h4>Холбоос</h4>
+      <ul>
+        <li><a href="about.html">Сургуулийн тухай</a></li>
+        <li><a href="staff.html">Багш нар</a></li>
+        <li><a href="schedule.html">Хуваарь</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Хэсгүүд</h4>
+      <ul>
+        <li><a href="contact.html">Холбоо барих</a></li>
+        <li><a href="https://edumap.mn/" target="_blank" rel="noopener">Эцэг эхийн портал</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Хаяг</h4>
+      <ul>
+        <li>Улаанбаатар хот, Баянгол дүүрэг, 26-р хороо</li>
+        <li>+976 7011-2233</li>
+        <li>info@surguuli141.edu.mn</li>
+      </ul>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <span>© 2026 141 дүгээр сургууль. Бүх эрх хуулиар хамгаалагдсан.</span>
+    <span>Жишээ загвар сайт</span>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+<script type="module">
+  import { db } from "./firebase-config.js";
+  import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+  function formatDate(iso) {
+    if (!iso) return "";
+    var parts = iso.split("-");
+    if (parts.length !== 3) return iso;
+    return parts[0] + "." + parts[1] + "." + parts[2];
+  }
+
+  (async function loadNewsDetail() {
+    var params = new URLSearchParams(window.location.search);
+    var id = params.get("id");
+    var headingEl = document.getElementById("news-heading");
+    var metaEl = document.getElementById("news-meta");
+    var bodyEl = document.getElementById("news-body");
+    var galleryEl = document.getElementById("news-gallery");
+
+    if (!id) {
+      headingEl.textContent = "Мэдээ олдсонгүй";
+      return;
+    }
+    try {
+      var snap = await getDoc(doc(db, "news", id));
+      if (!snap.exists()) {
+        headingEl.textContent = "Мэдээ олдсонгүй";
+        return;
+      }
+      var d = snap.data();
+      document.title = d.heading + " — 141 дүгээр сургууль";
+      headingEl.textContent = (d.emoji || "") + " " + d.heading;
+      metaEl.textContent = d.tag + " • " + formatDate(d.date);
+      bodyEl.textContent = d.body || "";
+
+      var images = d.images && d.images.length ? d.images : (d.image ? [d.image] : []);
+      if (images.length) {
+        galleryEl.innerHTML = images.map(function (src) {
+          return '<img src="' + src + '" alt="">';
+        }).join("");
+      }
+    } catch (err) {
+      headingEl.textContent = "Мэдээ ачаалахад алдаа гарлаа";
+      console.error(err);
+    }
+  })();
+</script>
+</body>
+</html>

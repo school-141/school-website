@@ -91,10 +91,9 @@
                 <textarea id="news-body" rows="4" required placeholder="Мэдээний агуулга"></textarea>
               </div>
               <div class="form-field">
-                <label for="news-image">Зураг (заавал биш)</label>
-                <input type="file" id="news-image" accept="image/*">
-                <img id="news-image-preview" class="admin-image-preview hidden" alt="Зургийн preview">
-                <button type="button" id="news-image-remove" class="btn-small delete hidden" style="margin-top:8px;">Зураг устгах</button>
+                <label for="news-image">Зураг (олноор сонгож болно, дээд тал нь 4)</label>
+                <input type="file" id="news-image" accept="image/*" multiple>
+                <div id="news-image-previews" class="admin-image-preview-row"></div>
               </div>
               <button type="submit" class="btn">Хадгалах</button>
               <button type="button" id="news-cancel" class="btn btn-secondary hidden">Цуцлах</button>
@@ -205,9 +204,9 @@
   var newsCancelBtn = document.getElementById("news-cancel");
   var newsFormTitle = document.getElementById("news-form-title");
   var newsImageInput = document.getElementById("news-image");
-  var newsImagePreview = document.getElementById("news-image-preview");
-  var newsImageRemoveBtn = document.getElementById("news-image-remove");
-  var pendingNewsImage = null; // null = зураггүй, эсвэл base64 data URL
+  var newsImagePreviewsEl = document.getElementById("news-image-previews");
+  var pendingNewsImages = []; // base64 data URL-уудын массив, дээд тал нь 4
+  var MAX_NEWS_IMAGES = 4;
 
   function resizeImageToDataUrl(file, maxWidth) {
     return new Promise(function (resolve, reject) {
@@ -222,7 +221,7 @@
           canvas.width = w;
           canvas.height = h;
           canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-          resolve(canvas.toDataURL("image/jpeg", 0.72));
+          resolve(canvas.toDataURL("image/jpeg", 0.7));
         };
         img.onerror = reject;
         img.src = e.target.result;
@@ -232,35 +231,43 @@
     });
   }
 
-  function showNewsImagePreview(dataUrl) {
-    if (dataUrl) {
-      newsImagePreview.src = dataUrl;
-      newsImagePreview.classList.remove("hidden");
-      newsImageRemoveBtn.classList.remove("hidden");
-    } else {
-      newsImagePreview.src = "";
-      newsImagePreview.classList.add("hidden");
-      newsImageRemoveBtn.classList.add("hidden");
-    }
+  function renderNewsImagePreviews() {
+    newsImagePreviewsEl.innerHTML = "";
+    pendingNewsImages.forEach(function (dataUrl, idx) {
+      var wrap = document.createElement("div");
+      wrap.className = "preview-item";
+      var img = document.createElement("img");
+      img.src = dataUrl;
+      var removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.textContent = "×";
+      removeBtn.addEventListener("click", function () {
+        pendingNewsImages.splice(idx, 1);
+        renderNewsImagePreviews();
+      });
+      wrap.appendChild(img);
+      wrap.appendChild(removeBtn);
+      newsImagePreviewsEl.appendChild(wrap);
+    });
   }
 
   newsImageInput.addEventListener("change", async function (e) {
-    var file = e.target.files[0];
-    if (!file) return;
-    var dataUrl = await resizeImageToDataUrl(file, 900);
-    if (dataUrl.length > 900000) {
-      alert("Зураг хэт том байна. Өөр, жижиг зураг сонгоно уу.");
-      newsImageInput.value = "";
-      return;
+    var files = Array.prototype.slice.call(e.target.files);
+    for (var i = 0; i < files.length; i++) {
+      if (pendingNewsImages.length >= MAX_NEWS_IMAGES) {
+        alert("Дээд тал нь " + MAX_NEWS_IMAGES + " зураг оруулах боломжтой.");
+        break;
+      }
+      var dataUrl = await resizeImageToDataUrl(files[i], 700);
+      var totalSize = pendingNewsImages.join("").length + dataUrl.length;
+      if (totalSize > 900000) {
+        alert("Нийт зургийн хэмжээ хэт том байна. Цөөн, эсвэл жижиг зураг сонгоно уу.");
+        break;
+      }
+      pendingNewsImages.push(dataUrl);
     }
-    pendingNewsImage = dataUrl;
-    showNewsImagePreview(dataUrl);
-  });
-
-  newsImageRemoveBtn.addEventListener("click", function () {
-    pendingNewsImage = null;
     newsImageInput.value = "";
-    showNewsImagePreview(null);
+    renderNewsImagePreviews();
   });
 
   function resetNewsForm() {
@@ -269,8 +276,8 @@
     newsIdField.value = "";
     newsFormTitle.textContent = "Мэдээ нэмэх";
     newsCancelBtn.classList.add("hidden");
-    pendingNewsImage = null;
-    showNewsImagePreview(null);
+    pendingNewsImages = [];
+    renderNewsImagePreviews();
   }
 
   newsCancelBtn.addEventListener("click", resetNewsForm);
@@ -283,7 +290,7 @@
       date: document.getElementById("news-date").value,
       heading: document.getElementById("news-heading").value.trim(),
       body: document.getElementById("news-body").value.trim(),
-      image: pendingNewsImage,
+      images: pendingNewsImages,
       updatedAt: serverTimestamp()
     };
     var id = newsIdField.value;
@@ -307,10 +314,12 @@
       var d = docSnap.data();
       var item = document.createElement("div");
       item.className = "admin-list-item";
+      var imgList = d.images || (d.image ? [d.image] : []);
+      var extraCount = imgList.length > 1 ? ' <span class="meta">(+' + (imgList.length - 1) + ' зураг)</span>' : '';
       item.innerHTML =
         '<div class="admin-list-item-main">' +
-        (d.image ? '<img class="thumb-mini" src="' + d.image + '">' : '') +
-        '<div><h4>' + d.emoji + ' ' + d.heading + '</h4>' +
+        (imgList[0] ? '<img class="thumb-mini" src="' + imgList[0] + '">' : '') +
+        '<div><h4>' + d.emoji + ' ' + d.heading + extraCount + '</h4>' +
         '<p>' + d.tag + ' • ' + d.date + '</p>' +
         '<p>' + d.body + '</p></div></div>' +
         '<div class="admin-list-actions">' +
@@ -324,8 +333,8 @@
         document.getElementById("news-date").value = d.date;
         document.getElementById("news-heading").value = d.heading;
         document.getElementById("news-body").value = d.body;
-        pendingNewsImage = d.image || null;
-        showNewsImagePreview(pendingNewsImage);
+        pendingNewsImages = (d.images || (d.image ? [d.image] : [])).slice();
+        renderNewsImagePreviews();
         newsFormTitle.textContent = "Мэдээ засах";
         newsCancelBtn.classList.remove("hidden");
         window.scrollTo({ top: 0, behavior: "smooth" });

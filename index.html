@@ -182,16 +182,19 @@
         var d = docSnap.data();
         var card = document.createElement("div");
         card.className = "card";
-        var thumbHtml = d.image
-          ? '<div class="thumb"><img src="' + d.image + '" alt=""></div>'
+        var firstImage = (d.images && d.images[0]) || d.image || null;
+        var thumbHtml = firstImage
+          ? '<div class="thumb"><img src="' + firstImage + '" alt=""></div>'
           : '<div class="thumb">' + (d.emoji || "📢") + '</div>';
+        var excerpt = d.body && d.body.length > 130 ? d.body.slice(0, 130).trim() + "…" : (d.body || "");
         card.innerHTML =
           thumbHtml +
           '<div class="card-body">' +
           '<span class="' + (tagClass[d.tag] || "tag") + '">' + d.tag + '</span>' +
           '<div class="meta">' + formatDate(d.date) + '</div>' +
           '<h3>' + d.heading + '</h3>' +
-          '<p>' + d.body + '</p>' +
+          '<p>' + excerpt + '</p>' +
+          '<a href="news-detail.html?id=' + docSnap.id + '">Дэлгэрэнгүй →</a>' +
           '</div>';
         container.appendChild(card);
       });
