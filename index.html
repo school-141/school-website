@@ -182,8 +182,11 @@
         var d = docSnap.data();
         var card = document.createElement("div");
         card.className = "card";
+        var thumbHtml = d.image
+          ? '<div class="thumb"><img src="' + d.image + '" alt=""></div>'
+          : '<div class="thumb">' + (d.emoji || "📢") + '</div>';
         card.innerHTML =
-          '<div class="thumb">' + (d.emoji || "📢") + '</div>' +
+          thumbHtml +
           '<div class="card-body">' +
           '<span class="' + (tagClass[d.tag] || "tag") + '">' + d.tag + '</span>' +
           '<div class="meta">' + formatDate(d.date) + '</div>' +

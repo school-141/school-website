@@ -90,6 +90,12 @@
                 <label for="news-body">Дэлгэрэнгүй</label>
                 <textarea id="news-body" rows="4" required placeholder="Мэдээний агуулга"></textarea>
               </div>
+              <div class="form-field">
+                <label for="news-image">Зураг (заавал биш)</label>
+                <input type="file" id="news-image" accept="image/*">
+                <img id="news-image-preview" class="admin-image-preview hidden" alt="Зургийн preview">
+                <button type="button" id="news-image-remove" class="btn-small delete hidden" style="margin-top:8px;">Зураг устгах</button>
+              </div>
               <button type="submit" class="btn">Хадгалах</button>
               <button type="button" id="news-cancel" class="btn btn-secondary hidden">Цуцлах</button>
             </form>
@@ -198,6 +204,64 @@
   var newsIdField = document.getElementById("news-id");
   var newsCancelBtn = document.getElementById("news-cancel");
   var newsFormTitle = document.getElementById("news-form-title");
+  var newsImageInput = document.getElementById("news-image");
+  var newsImagePreview = document.getElementById("news-image-preview");
+  var newsImageRemoveBtn = document.getElementById("news-image-remove");
+  var pendingNewsImage = null; // null = зураггүй, эсвэл base64 data URL
+
+  function resizeImageToDataUrl(file, maxWidth) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        var img = new Image();
+        img.onload = function () {
+          var scale = Math.min(1, maxWidth / img.width);
+          var w = Math.round(img.width * scale);
+          var h = Math.round(img.height * scale);
+          var canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL("image/jpeg", 0.72));
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function showNewsImagePreview(dataUrl) {
+    if (dataUrl) {
+      newsImagePreview.src = dataUrl;
+      newsImagePreview.classList.remove("hidden");
+      newsImageRemoveBtn.classList.remove("hidden");
+    } else {
+      newsImagePreview.src = "";
+      newsImagePreview.classList.add("hidden");
+      newsImageRemoveBtn.classList.add("hidden");
+    }
+  }
+
+  newsImageInput.addEventListener("change", async function (e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var dataUrl = await resizeImageToDataUrl(file, 900);
+    if (dataUrl.length > 900000) {
+      alert("Зураг хэт том байна. Өөр, жижиг зураг сонгоно уу.");
+      newsImageInput.value = "";
+      return;
+    }
+    pendingNewsImage = dataUrl;
+    showNewsImagePreview(dataUrl);
+  });
+
+  newsImageRemoveBtn.addEventListener("click", function () {
+    pendingNewsImage = null;
+    newsImageInput.value = "";
+    showNewsImagePreview(null);
+  });
 
   function resetNewsForm() {
     newsForm.reset();
@@ -205,6 +269,8 @@
     newsIdField.value = "";
     newsFormTitle.textContent = "Мэдээ нэмэх";
     newsCancelBtn.classList.add("hidden");
+    pendingNewsImage = null;
+    showNewsImagePreview(null);
   }
 
   newsCancelBtn.addEventListener("click", resetNewsForm);
@@ -217,6 +283,7 @@
       date: document.getElementById("news-date").value,
       heading: document.getElementById("news-heading").value.trim(),
       body: document.getElementById("news-body").value.trim(),
+      image: pendingNewsImage,
       updatedAt: serverTimestamp()
     };
     var id = newsIdField.value;
@@ -241,9 +308,11 @@
       var item = document.createElement("div");
       item.className = "admin-list-item";
       item.innerHTML =
+        '<div class="admin-list-item-main">' +
+        (d.image ? '<img class="thumb-mini" src="' + d.image + '">' : '') +
         '<div><h4>' + d.emoji + ' ' + d.heading + '</h4>' +
         '<p>' + d.tag + ' • ' + d.date + '</p>' +
-        '<p>' + d.body + '</p></div>' +
+        '<p>' + d.body + '</p></div></div>' +
         '<div class="admin-list-actions">' +
         '<button class="btn-small edit" data-action="edit">Засах</button>' +
         '<button class="btn-small delete" data-action="delete">Устгах</button>' +
@@ -255,6 +324,8 @@
         document.getElementById("news-date").value = d.date;
         document.getElementById("news-heading").value = d.heading;
         document.getElementById("news-body").value = d.body;
+        pendingNewsImage = d.image || null;
+        showNewsImagePreview(pendingNewsImage);
         newsFormTitle.textContent = "Мэдээ засах";
         newsCancelBtn.classList.remove("hidden");
         window.scrollTo({ top: 0, behavior: "smooth" });
