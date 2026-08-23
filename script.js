@@ -32,17 +32,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Contact form (demo - no backend)
-  var contactForm = document.getElementById("contact-form");
-  if (contactForm) {
-    contactForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      var msg = document.getElementById("contact-success");
-      contactForm.reset();
-      if (msg) msg.classList.remove("hidden");
-    });
-  }
-
   // Home photo slider (auto rotate)
   var slides = document.querySelectorAll(".photo-slider .slide");
   var dots = document.querySelectorAll(".photo-slider .slider-dots span");

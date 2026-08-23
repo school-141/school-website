@@ -57,6 +57,7 @@
       <div class="admin-tabs">
         <button class="admin-tab-btn active" data-tab="news-panel">📢 Мэдээ, зарлал</button>
         <button class="admin-tab-btn" data-tab="staff-panel">👨‍🏫 Багш, ажилтан</button>
+        <button class="admin-tab-btn" data-tab="messages-panel">📩 Санал хүсэлт <span id="messages-unread-badge"></span></button>
       </div>
 
       <!-- МЭДЭЭ -->
@@ -144,6 +145,11 @@
             <div id="staff-list"><p class="meta">Ачааллаж байна...</p></div>
           </div>
         </div>
+      </div>
+
+      <!-- САНАЛ ХҮСЭЛТ -->
+      <div id="messages-panel" class="admin-panel">
+        <div id="messages-list"><p class="meta">Ачааллаж байна...</p></div>
       </div>
 
     </div>
@@ -574,6 +580,59 @@
       seedData[i].order = i;
       await addDoc(collection(db, "staff"), seedData[i]);
     }
+  });
+
+  // ================= САНАЛ ХҮСЭЛТ =================
+  var roleLabelMap = {
+    "Эцэг эх / асран хамгаалагч": "tag",
+    "Сурагч": "tag gold",
+    "Багш / ажилтан": "tag",
+    "Бусад": "tag"
+  };
+
+  function formatMsgDate(ts) {
+    if (!ts || !ts.toDate) return "";
+    var d = ts.toDate();
+    return d.getFullYear() + "." + String(d.getMonth() + 1).padStart(2, "0") + "." + String(d.getDate()).padStart(2, "0") +
+      " " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+  }
+
+  onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "desc")), function (snap) {
+    var listEl = document.getElementById("messages-list");
+    var badge = document.getElementById("messages-unread-badge");
+    if (snap.empty) {
+      listEl.innerHTML = '<p class="meta">Одоогоор санал хүсэлт ирээгүй байна.</p>';
+      badge.textContent = "";
+      return;
+    }
+    var unreadCount = 0;
+    listEl.innerHTML = "";
+    snap.forEach(function (docSnap) {
+      var d = docSnap.data();
+      if (!d.read) unreadCount++;
+      var item = document.createElement("div");
+      item.className = "admin-list-item";
+      item.style.opacity = d.read ? "0.65" : "1";
+      item.innerHTML =
+        '<div>' +
+        '<span class="' + (roleLabelMap[d.role] || "tag") + '">' + (d.role || "") + (d.read ? "" : " • 🆕") + '</span>' +
+        '<h4 style="margin-top:6px;">' + d.name + '</h4>' +
+        '<p class="meta">' + d.email + ' • ' + formatMsgDate(d.createdAt) + '</p>' +
+        '<p>' + d.message + '</p>' +
+        '</div>' +
+        '<div class="admin-list-actions">' +
+        '<button class="btn-small edit" data-action="toggle-read">' + (d.read ? "Уншаагүй болгох" : "Уншсан болгох") + '</button>' +
+        '<button class="btn-small delete" data-action="delete">Устгах</button>' +
+        '</div>';
+      item.querySelector('[data-action="toggle-read"]').addEventListener("click", function () {
+        updateDoc(doc(db, "messages", docSnap.id), { read: !d.read });
+      });
+      item.querySelector('[data-action="delete"]').addEventListener("click", function () {
+        if (confirm("Энэ мессежийг устгах уу?")) deleteDoc(doc(db, "messages", docSnap.id));
+      });
+      listEl.appendChild(item);
+    });
+    badge.textContent = unreadCount > 0 ? "(" + unreadCount + ")" : "";
   });
 </script>
 </body>

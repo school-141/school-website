@@ -72,9 +72,9 @@
           <label for="message">Санал хүсэлт</label>
           <textarea id="message" rows="5" required placeholder="Мессежээ энд бичнэ үү..."></textarea>
         </div>
-        <button type="submit" class="btn">Илгээх</button>
-        <p class="form-note" style="margin-top:10px;">Энэ маягт нь демо загвар — бодит сервертэй холбогдоогүй.</p>
-        <div id="contact-success" class="info-box success hidden" style="margin-top:14px;">✅ Таны мессеж амжилттай илгээгдлээ (жишээ хариу).</div>
+        <button type="submit" class="btn" id="contact-submit-btn">Илгээх</button>
+        <div id="contact-error" class="info-box warn hidden" style="margin-top:14px;">Илгээхэд алдаа гарлаа. Дахин оролдоно уу.</div>
+        <div id="contact-success" class="info-box success hidden" style="margin-top:14px;">✅ Таны мессеж амжилттай илгээгдлээ. Баярлалаа!</div>
       </form>
     </div>
     <div>
@@ -137,5 +137,40 @@
 <script src="script.js"></script>
 <div id="google_translate_element" style="display:none;"></div>
 <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async></script>
+<script type="module">
+  import { db } from "./firebase-config.js";
+  import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+  var contactForm = document.getElementById("contact-form");
+  var successBox = document.getElementById("contact-success");
+  var errorBox = document.getElementById("contact-error");
+  var submitBtn = document.getElementById("contact-submit-btn");
+
+  contactForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    successBox.classList.add("hidden");
+    errorBox.classList.add("hidden");
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Илгээж байна...";
+    try {
+      await addDoc(collection(db, "messages"), {
+        name: document.getElementById("name").value.trim(),
+        role: document.getElementById("role").value,
+        email: document.getElementById("email").value.trim(),
+        message: document.getElementById("message").value.trim(),
+        read: false,
+        createdAt: serverTimestamp()
+      });
+      contactForm.reset();
+      successBox.classList.remove("hidden");
+    } catch (err) {
+      errorBox.classList.remove("hidden");
+      console.error(err);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Илгээх";
+    }
+  });
+</script>
 </body>
 </html>
