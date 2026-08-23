@@ -210,39 +210,38 @@ nav.main-nav a.portal-link:hover { background: var(--gold-dark); color: #fff; }
 
 /* ===== Hero ===== */
 .hero {
-  background:
-    radial-gradient(circle at 1px 1px, rgba(255,255,255,.06) 1px, transparent 0) 0 0/26px 26px,
-    linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
-  color: #fff;
-  padding: 70px 0;
-  border-bottom: 1px solid rgba(255,255,255,.08);
+  background: #ffffff;
+  color: var(--text);
+  padding: 56px 0;
+  border-bottom: 1px solid var(--border);
 }
 .hero .container { display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; align-items: center; }
-.hero h1 { color: #fff; font-size: 2.35rem; }
-.hero p { color: #dcebe1; font-size: 1.04rem; }
+.hero h1 { color: var(--navy); font-size: 2.35rem; }
+.hero p { color: var(--text-light); font-size: 1.04rem; }
 .hero-tag {
   display: inline-block;
-  background: rgba(224, 166, 38, .16);
-  color: #f6c667;
-  border: 1px solid rgba(224,166,38,.45);
+  background: #fbf0dc;
+  color: var(--gold-dark);
+  border: 1px solid #f0d9ab;
   padding: 5px 14px;
   border-radius: 3px;
   font-size: .76rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: .05em;
   text-transform: uppercase;
   margin-bottom: 16px;
 }
 .hero-art {
-  background: rgba(255,255,255,.07);
-  border: 1px solid rgba(255,255,255,.16);
+  background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+  border: 1px solid var(--navy);
   border-radius: var(--radius);
   padding: 26px;
+  box-shadow: var(--shadow-lg);
 }
 .hero-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .hero-stats div { text-align: center; padding: 6px 0; }
 .hero-stats strong { display: block; font-family: var(--font-serif); font-size: 1.7rem; color: var(--gold); }
-.hero-stats span { font-size: .78rem; color: #cfe0d5; letter-spacing: .01em; }
+.hero-stats span { font-size: .78rem; color: #d7e6dc; letter-spacing: .01em; }
 
 .btn {
   display: inline-block;
@@ -470,6 +469,21 @@ footer.site-footer a:hover { color: #fff; }
   border-radius: var(--radius);
   overflow: hidden;
   box-shadow: var(--shadow-lg);
+}
+.photo-slider-full {
+  height: 78vh;
+  min-height: 420px;
+  max-height: 720px;
+  border-radius: 0;
+  box-shadow: none;
+}
+.photo-slider-full::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(7,51,34,0) 55%, rgba(7,51,34,.55) 100%);
+  z-index: 1;
+  pointer-events: none;
 }
 .photo-slider .slide {
   position: absolute;
