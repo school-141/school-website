@@ -101,8 +101,27 @@
     transition: opacity .7s ease, visibility 0s .7s;
   }
   .intro.gone { opacity: 0; visibility: hidden; }
-  .intro-top { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(22px, 6.4vw, 30px); text-align: center; text-wrap: balance; transition: opacity .4s; }
-  .intro-top small { display: block; font-family: var(--body); font-weight: 500; font-size: 14px; color: var(--chalk-dim); margin-top: 6px; letter-spacing: .02em; }
+  .intro-top { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+  .it-from {
+    display: inline-flex; align-items: center; gap: 12px;
+    font-family: var(--body); font-weight: 700; font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--marigold);
+    transition: opacity .6s ease, transform .6s ease;
+  }
+  .it-from::before, .it-from::after { content: ""; width: 26px; height: 1.5px; background: currentColor; opacity: .7; }
+  .it-main {
+    font-family: var(--display); font-weight: 800; font-size: clamp(26px, 7.4vw, 34px); line-height: 1.1; color: var(--chalk); letter-spacing: -.01em;
+    transition: opacity .7s .15s ease, transform .7s .15s cubic-bezier(.2,.8,.2,1);
+  }
+  .it-main em {
+    position: relative; display: inline-block; font-style: normal;
+    font-family: var(--hand); font-weight: 700; font-size: 1.55em; line-height: .8; color: var(--marigold);
+    transform: rotate(-4deg); margin: 0 .08em;
+  }
+  .swash { position: absolute; left: -4%; right: -4%; bottom: -.28em; width: 108%; height: .34em; overflow: visible; }
+  .swash path { fill: none; stroke: var(--chalk); stroke-width: 2.4; stroke-linecap: round; stroke-dasharray: 260; stroke-dashoffset: 260; transition: stroke-dashoffset 1s .7s ease-out; }
+  .intro.landed .swash path, .intro.nomotion .swash path { stroke-dashoffset: 0; }
+  .intro:not(.landed):not(.nomotion) .it-from { opacity: 0; transform: translateY(-8px); }
+  .intro:not(.landed):not(.nomotion) .it-main { opacity: 0; transform: translateY(12px) scale(.96); }
   .env { position: relative; width: min(320px, 84vw); aspect-ratio: 3 / 2; perspective: 1200px; filter: drop-shadow(0 26px 30px rgba(0,0,0,.45)); margin-top: 96px; }
   @keyframes envIn { from { transform: translateY(40px) rotate(-6deg) scale(.9); opacity: 0; } }
   .env-back { position: absolute; inset: 0; background: #DCD4BD; border-radius: 12px; }
@@ -176,7 +195,7 @@
   .intro:not(.landed) .seal { pointer-events: none; animation-play-state: paused; }
   .intro:not(.landed) .intro-hint { opacity: 0; }
   .intro-top { transition: opacity .5s; }
-  .intro:not(.landed):not(.nomotion) .intro-top { opacity: .0; }
+  
   .yt { font-size: 12px; line-height: 1.35; color: var(--chalk-dim); }
   .note b { color: var(--marigold); font-weight: 700; }
 
@@ -429,7 +448,10 @@
 
 
 <div class="intro" id="intro" role="dialog" aria-label="Урилга нээх">
-  <p class="intro-top">Танд урилга ирлээ<small>141 дүгээр сургуулиас</small></p>
+  <p class="intro-top">
+    <span class="it-from">141 дүгээр сургуулиас</span>
+    <span class="it-main">Танд <em>урилга<svg class="swash" viewBox="0 0 120 16" preserveAspectRatio="none" aria-hidden="true"><path d="M3 11 C 30 3, 70 3, 117 8 M20 14 C 50 9, 80 9, 104 12"/></svg></em> ирлээ</span>
+  </p>
   <div class="env" id="env">
     <div class="env-back"></div>
     <div class="env-card"><b>Багш нарын баяр</b><span>2026.10.02 · 18:00</span></div>
