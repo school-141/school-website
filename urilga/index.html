@@ -70,20 +70,142 @@
   .years { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 30px; }
   .yr { display: flex; align-items: center; gap: 10px; border: 1.5px solid rgba(243,241,232,.25); border-radius: 16px; padding: 12px 12px; background: rgba(255,255,255,.04); }
   .yn { font-family: var(--display); font-weight: 900; font-size: 38px; line-height: 1; color: var(--marigold); font-variant-numeric: tabular-nums; }
+  .yr { position: relative; }
+  .shine {
+    background: linear-gradient(100deg, var(--marigold) 35%, #FFF4D6 50%, var(--marigold) 65%);
+    background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: shine 3s 1.2s linear infinite;
+  }
+  @keyframes shine { from { background-position: 100% 0; } to { background-position: 0 0; } }
+  .spark {
+    position: absolute; width: 12px; height: 12px; background: #FFE39B; pointer-events: none;
+    clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+    transform: scale(0); animation: twinkle 2.4s ease-in-out infinite;
+  }
+  .spark.s1 { left: 6px; top: -6px; animation-delay: 1.2s; }
+  .spark.s2 { left: 60px; top: 8px; width: 9px; height: 9px; animation-delay: 2s; }
+  .spark.s3 { left: 34px; bottom: -6px; width: 10px; height: 10px; animation-delay: 2.8s; }
+  @keyframes twinkle { 0%, 100% { transform: scale(0) rotate(0); } 45% { transform: scale(1) rotate(90deg); } 60% { transform: scale(0) rotate(120deg); } }
+
+  /* Envelope intro */
+  body.sealed { overflow: hidden; }
+  body.sealed .rise, body.sealed .ch, body.sealed .ring path, body.sealed .logo { animation-play-state: paused; }
+  .intro {
+    position: fixed; inset: 0; z-index: 50;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px;
+    padding: calc(24px + env(safe-area-inset-top, 0px)) 16px calc(24px + env(safe-area-inset-bottom, 0px));
+    background:
+      radial-gradient(120% 60% at 20% 0%, rgba(255,255,255,.07), transparent 60%),
+      radial-gradient(90% 60% at 100% 100%, rgba(247,162,27,.10), transparent 60%),
+      var(--board);
+    transition: opacity .7s ease, visibility 0s .7s;
+  }
+  .intro.gone { opacity: 0; visibility: hidden; }
+  .intro-top { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(22px, 6.4vw, 30px); text-align: center; text-wrap: balance; transition: opacity .4s; }
+  .intro-top small { display: block; font-family: var(--body); font-weight: 500; font-size: 14px; color: var(--chalk-dim); margin-top: 6px; letter-spacing: .02em; }
+  .env { position: relative; width: min(320px, 84vw); aspect-ratio: 3 / 2; perspective: 1200px; filter: drop-shadow(0 26px 30px rgba(0,0,0,.45)); animation: envIn .9s cubic-bezier(.2,.9,.3,1.2) backwards; }
+  @keyframes envIn { from { transform: translateY(40px) rotate(-6deg) scale(.9); opacity: 0; } }
+  .env-back { position: absolute; inset: 0; background: #DCD4BD; border-radius: 12px; }
+  .env-card {
+    position: absolute; left: 7%; right: 7%; top: 7%; bottom: 7%; z-index: 1;
+    background: var(--board); border: 2px solid var(--marigold); border-radius: 10px;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 14%; gap: 4px;
+    color: var(--chalk); text-align: center;
+    transition: transform 1s .5s cubic-bezier(.2,.8,.2,1);
+  }
+  .env-card b { font-family: var(--display); font-weight: 900; font-size: clamp(17px, 5vw, 21px); text-transform: uppercase; letter-spacing: -.01em; }
+  .env-card span { font-size: 13px; color: var(--marigold); font-weight: 700; letter-spacing: .08em; }
+  .env-front {
+    position: absolute; inset: 0; z-index: 2; border-radius: 12px;
+    background: linear-gradient(160deg, #F7F2E4, #EAE2CB);
+    clip-path: polygon(0 0, 50% 56%, 100% 0, 100% 100%, 0 100%);
+  }
+  .env-front::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(to top right, transparent calc(50% - 1px), rgba(120,100,60,.18) 50%, transparent calc(50% + 1px)) left bottom / 50% 60% no-repeat,
+                linear-gradient(to top left, transparent calc(50% - 1px), rgba(120,100,60,.18) 50%, transparent calc(50% + 1px)) right bottom / 50% 60% no-repeat;
+  }
+  .env-flap {
+    position: absolute; left: 0; right: 0; top: 0; height: 60%; z-index: 3;
+    background: linear-gradient(180deg, #EFE8D4, #E2D9BF);
+    clip-path: polygon(0 0, 100% 0, 50% 100%); border-radius: 12px 12px 0 0;
+    transform-origin: 50% 0;
+    transition: transform .6s .15s cubic-bezier(.5,0,.5,1), z-index 0s .45s;
+  }
+  .seal {
+    position: absolute; left: 50%; top: 60%; z-index: 4; transform: translate(-50%, -50%);
+    width: 76px; height: 76px; border-radius: 50%; border: 0; padding: 5px; cursor: pointer;
+    background: #fff; box-shadow: 0 0 0 4px var(--marigold), 0 10px 18px rgba(0,0,0,.35);
+    -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    animation: sealPulse 1.8s 1s ease-in-out infinite;
+    transition: transform .35s cubic-bezier(.5,-.4,.6,1), opacity .35s;
+  }
+  .seal img { width: 100%; height: 100%; border-radius: 50%; display: block; }
+  .seal:focus-visible { outline: 3px solid var(--chalk); outline-offset: 6px; }
+  @keyframes sealPulse {
+    0%, 100% { box-shadow: 0 0 0 4px var(--marigold), 0 0 0 4px rgba(247,162,27,.45), 0 10px 18px rgba(0,0,0,.35); }
+    50% { box-shadow: 0 0 0 4px var(--marigold), 0 0 0 18px rgba(247,162,27,0), 0 10px 18px rgba(0,0,0,.35); }
+  }
+  .intro-hint { margin: 0; font-family: var(--hand); font-size: 28px; font-weight: 700; color: var(--marigold); animation: bob 1.6s ease-in-out infinite; transition: opacity .3s; }
+  @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  .skip {
+    position: absolute; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    background: none; border: 0; color: var(--chalk-dim); font-family: var(--body); font-size: 14px; text-decoration: underline; cursor: pointer; padding: 8px;
+  }
+  .intro.open .seal { animation: none; transform: translate(-50%, -50%) scale(.2) rotate(-50deg); opacity: 0; }
+  .intro.open .env-flap { transform: rotateX(180deg); z-index: 0; }
+  .intro.open .env-card { transform: translateY(-58%); }
+  .intro.open .intro-hint, .intro.open .skip { opacity: 0; }
+  #confetti { z-index: 60 !important; }
   .yt { font-size: 12px; line-height: 1.35; color: var(--chalk-dim); }
   .note b { color: var(--marigold); font-weight: 700; }
 
   /* Ticket */
+  .tilt { margin-top: 36px; transition: transform .25s ease-out; }
   .ticket {
-    margin-top: 36px; background: var(--chalk); color: var(--board-3);
-    border-radius: 22px; position: relative;
-    box-shadow: 0 30px 60px -30px rgba(0,0,0,.6);
-    transform: rotate(-1.5deg);
+    position: relative; color: var(--board-3); cursor: pointer;
+    transform: rotate(-1.5deg); transform-style: preserve-3d;
+    transition: transform .8s cubic-bezier(.3,1.25,.4,1);
+    -webkit-tap-highlight-color: transparent;
   }
-  .ticket::before, .ticket::after {
+  .ticket.flipped { transform: rotate(1.5deg) rotateY(180deg); }
+  .face {
+    background: var(--chalk); border-radius: 22px;
+    box-shadow: 0 30px 60px -30px rgba(0,0,0,.6);
+    -webkit-backface-visibility: hidden; backface-visibility: hidden;
+  }
+  .front { position: relative; }
+  .front::before, .front::after {
     content: ""; position: absolute; top: 158px; width: 28px; height: 28px; border-radius: 50%; background: var(--board);
   }
-  .ticket::before { left: -14px; } .ticket::after { right: -14px; }
+  .front::before { left: -14px; } .front::after { right: -14px; }
+  .back {
+    position: absolute; inset: 0; transform: rotateY(180deg);
+    background: var(--marigold); color: var(--board-3);
+    display: flex; flex-direction: column; padding: 26px 24px 24px; box-sizing: border-box; overflow: hidden;
+  }
+  .back .label { color: rgba(10,40,27,.7); }
+  .qmark { font-family: var(--display); font-weight: 900; font-size: 88px; line-height: .6; height: 44px; margin-top: 18px; color: var(--board); opacity: .9; }
+  .praise {
+    flex: 1; display: flex; align-items: center; margin: 4px 0 0;
+    font-family: var(--display); font-weight: 800; font-size: clamp(21px, 6.2vw, 27px); line-height: 1.28; text-wrap: balance;
+    transition: opacity .3s ease, transform .3s ease;
+  }
+  .praise.swap { opacity: 0; transform: translateY(8px); }
+  .praise-by { font-size: 13px; font-weight: 700; color: rgba(10,40,27,.75); margin-top: 10px; }
+  .b-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+  .b-actions button { font-family: var(--body); border: 0; cursor: pointer; }
+  .b-actions .ghost { background: transparent; }
+  .flip-hint {
+    position: absolute; top: 16px; right: 16px;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--body); font-size: 13px; font-weight: 700; color: var(--board);
+    background: rgba(247,162,27,.22); border: 1.5px solid var(--marigold); border-radius: 999px; padding: 6px 12px; cursor: pointer;
+    animation: hintPulse 2.6s 2.5s ease-in-out infinite;
+  }
+  .flip-hint svg { width: 14px; height: 14px; }
+  @keyframes hintPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.07); } }
+  .t-place { position: relative; }
   .t-date { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: center; padding: 26px 24px 22px; height: 172px; box-sizing: border-box; }
   .t-day { font-family: var(--display); font-weight: 900; font-size: 96px; line-height: .85; letter-spacing: -.04em; color: var(--board); }
   .t-meta { display: grid; gap: 4px; }
@@ -126,7 +248,8 @@
     .t-place { padding: 20px 18px 22px; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .rise, .ring path, .ch, .logo, .float, .n.flip, .popper, .popper .cone, .popper .bits { animation: none !important; }
+    .rise, .ring path, .ch, .logo, .float, .n.flip, .popper, .popper .cone, .popper .bits, .shine, .spark, .flip-hint, .env, .seal, .intro-hint { animation: none !important; }
+    .ticket, .env-card, .env-flap, .seal { transition-duration: .01s !important; transition-delay: 0s !important; }
     .btn:hover { transform: none; }
   }
 
@@ -142,7 +265,6 @@
   .logo:focus-visible { outline: 3px solid var(--chalk); outline-offset: 4px; }
   .float { animation: float 6s ease-in-out infinite; }
   @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-  .ticket { transition: transform .25s ease-out; transform-style: preserve-3d; }
   .n.flip { animation: flip .45s cubic-bezier(.3,1.3,.5,1); }
   @keyframes flip { from { transform: rotateX(90deg); opacity: .3; } }
   .pop-row { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-top: 18px; }
@@ -172,7 +294,7 @@
   #confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
 </style>
 </head>
-<body>
+<body class="sealed">
 
 
 <canvas id="dust" aria-hidden="true"></canvas>
@@ -221,14 +343,15 @@
     </button>
     </div>
     <div class="years">
-      <div class="yr"><span class="yn" data-to="60">60</span><span class="yt">дахь жил<br>Монголын багш нарын баяр</span></div>
+      <div class="yr"><span class="yn shine" data-to="60">60</span><span class="spark s1"></span><span class="spark s2"></span><span class="spark s3"></span><span class="yt">дахь жил<br>Монголын багш нарын баяр</span></div>
       <div class="yr"><span class="yn" data-to="32">32</span><span class="yt">дахь жил<br>Дэлхийн багш нарын баяр</span></div>
     </div>
     <p class="note">Монголын багш нарын баярын <b>60 дахь</b>, Дэлхийн багш нарын баярын <b>32 дахь</b> өдрийг тохиолдуулан эрхэм хүндэт багш та бүхэнд баярын мэнд хүргэе!</p>
     <p class="note">Баярын хүндэтгэлийн үдэшлэгт хүрэлцэн ирэхийг урьж байна.</p>
   </section>
 
-  <div class="float"><article class="ticket rise d3" id="ticket" aria-label="Үдэшлэгийн мэдээлэл">
+  <div class="float"><div class="tilt" id="tilt"><article class="ticket rise d3" id="ticket" aria-label="Үдэшлэгийн мэдээлэл">
+   <div class="face front" id="front">
     <div class="t-date">
       <div class="t-day" aria-hidden="true">02</div>
       <div class="t-meta">
@@ -238,6 +361,7 @@
       </div>
     </div>
     <div class="t-place">
+      <button class="flip-hint" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.5 6.2L3 16M3 21v-5h5"/></svg>Эргүүлж үзээрэй</button>
       <div class="label">Байршил</div>
       <div class="venue">Astory Event Hall</div>
       <div class="venue-sub">“Уран ган” цогцолборын баруун талд</div>
@@ -252,7 +376,18 @@
         </a>
       </div>
     </div>
-  </article></div>
+     </div>
+   <div class="face back" id="back" aria-hidden="true">
+      <div class="label">Танд зориулсан үг</div>
+      <div class="qmark" aria-hidden="true">“</div>
+      <p class="praise" id="praise" aria-live="polite"></p>
+      <div class="praise-by">141-р сургуулийн хамт олон</div>
+      <div class="b-actions">
+        <button class="btn primary" id="another" type="button">Өөр үг үзэх</button>
+        <button class="btn ghost" id="flipback" type="button">Буцаах</button>
+      </div>
+   </div>
+  </article></div></div>
 
   <section class="count rise d4" aria-live="polite">
     <div class="label">Баяр хүртэл</div>
@@ -272,6 +407,19 @@
 </main>
 
 
+
+<div class="intro" id="intro" role="dialog" aria-label="Урилга нээх">
+  <p class="intro-top">Танд урилга ирлээ<small>141 дүгээр сургуулиас</small></p>
+  <div class="env">
+    <div class="env-back"></div>
+    <div class="env-card"><b>Багш нарын баяр</b><span>2026.10.02 · 18:00</span></div>
+    <div class="env-front"></div>
+    <div class="env-flap"></div>
+    <button class="seal" id="seal" type="button" aria-label="Урилга нээх"><img id="seal-img" alt=""></button>
+  </div>
+  <p class="intro-hint">Лацан дээр дарж нээнэ үү</p>
+  <button class="skip" id="skip" type="button">Алгасах</button>
+</div>
 <script>
   // Countdown
   (function () {
@@ -367,17 +515,17 @@
           el.textContent = Math.round(to * e);
           if (k < 1) requestAnimationFrame(step);
         }
-        setTimeout(function () { requestAnimationFrame(step); }, 600);
+        document.addEventListener('invite-open', function () { setTimeout(function () { requestAnimationFrame(step); }, 700); }, { once: true });
       });
     }
 
     // Ticket tilt toward the pointer
-    var ticket = document.getElementById('ticket');
+    var ticket = document.getElementById('tilt');
     if (!reduce && window.matchMedia('(hover: hover)').matches) {
       ticket.addEventListener('pointermove', function (e) {
         var r = ticket.getBoundingClientRect();
         var x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
-        ticket.style.transform = 'perspective(900px) rotateX(' + (-y * 8) + 'deg) rotateY(' + (x * 10) + 'deg) rotate(-1.5deg)';
+        ticket.style.transform = 'perspective(900px) rotateX(' + (-y * 8) + 'deg) rotateY(' + (x * 10) + 'deg)';
       });
       ticket.addEventListener('pointerleave', function () { ticket.style.transform = ''; });
     }
@@ -406,6 +554,7 @@
       });
       if (bits.length) requestAnimationFrame(loop); else { running = false; ctx.clearRect(0, 0, W, H); }
     }
+    window.inviteBurst = burst;
     var popper = document.getElementById('popper'), count = 0;
     popper.addEventListener('click', function () {
       var r = popper.getBoundingClientRect();
@@ -420,5 +569,82 @@
   })();
 </script>
 
+<script>
+  // Praise on the back of the ticket: a different one for each visitor
+  (function () {
+    var list = [
+      'Таны тэвчээр, халуун сэтгэл шавь бүрийн зүрхэнд мөнхөд үлдэнэ.',
+      'Та бол шавь нарынхаа хамгийн анхны, хамгийн том үлгэр жишээ.',
+      'Таны өгсөн мэдлэг үеэс үед уламжлагдан үргэлжилнэ.',
+      'Самбарт бичсэн таны үг шавь нарын тань амьдралд бичигддэг.',
+      'Таны хэлсэн нэг урам өгөх үг хүүхдийн итгэлийг жигүүртүүлдэг.',
+      'Мэдлэгийн гэрэл асаагч танд мянган баярлалаа.',
+      'Таныг ангид ороход шавь нарын тань өмнө шинэ ертөнцийн хаалга нээгддэг.',
+      'Таны хөдөлмөр улс орны ирээдүйг бүтээж байна.',
+      'Хонх дуугарсны дараа ч таны заасан сургамж үргэлжилсээр.',
+      'Хүүхэд бүрт итгэж, авьяасыг нь нээдэг танд талархал илэрхийлье.',
+      'Та хичээл заахаас гадна хүнийг хүн болгодог.',
+      'Таны инээмсэглэл бол ангийн хамгийн дулаахан гэрэл.',
+      'Шавь нарын тань амжилт бүрийн ард таны зүтгэл бий.',
+      'Шавь нарынхаа мөрөөдлийг бодит болгодог шидтэн бол та.',
+      'Таны сэтгэлийн дулаан шавь нарыг тань насан туршид дагалдана.',
+      'Мэдлэг, ухаан, хайраа харамгүй хуваалцдаг танд гүн хүндэтгэл.',
+      'Өдөр бүр шавь нартаа өөрийгөө зориулдаг таны ачийг бид мартахгүй.',
+      'Та бол бидний бахархал, сургуулийн минь үнэт баялаг.'
+    ];
+    for (var i = list.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = list[i]; list[i] = list[j]; list[j] = t; }
+    var idx = 0, praise = document.getElementById('praise');
+    praise.textContent = list[0];
+
+    var ticket = document.getElementById('ticket'), front = document.getElementById('front'), back = document.getElementById('back');
+    function flip() {
+      var on = ticket.classList.toggle('flipped');
+      front.setAttribute('aria-hidden', on ? 'true' : 'false');
+      back.setAttribute('aria-hidden', on ? 'false' : 'true');
+    }
+    ticket.addEventListener('click', function (e) {
+      if (e.target.closest('a, #another')) return;
+      flip();
+    });
+    document.getElementById('another').addEventListener('click', function () {
+      praise.classList.add('swap');
+      setTimeout(function () {
+        idx = (idx + 1) % list.length;
+        praise.textContent = list[idx];
+        praise.classList.remove('swap');
+      }, 300);
+    });
+  })();
+
+  // Envelope intro
+  (function () {
+    var intro = document.getElementById('intro'), seal = document.getElementById('seal');
+    document.getElementById('seal-img').src = document.getElementById('logo').src;
+    var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var seen = false;
+    try { seen = sessionStorage.getItem('urilga-opened') === '1'; } catch (e) {}
+    function reveal() {
+      document.body.classList.remove('sealed');
+      document.dispatchEvent(new Event('invite-open'));
+      try { sessionStorage.setItem('urilga-opened', '1'); } catch (e) {}
+    }
+    if (seen) { intro.remove(); reveal(); return; }
+    var opened = false;
+    function open() {
+      if (opened) return; opened = true;
+      intro.classList.add('open');
+      var r = seal.getBoundingClientRect();
+      if (window.inviteBurst) setTimeout(function () { window.inviteBurst(r.left + r.width / 2, r.top + r.height / 2, 80, -Math.PI / 2, 2.6, .9); }, 200);
+      setTimeout(function () { intro.classList.add('gone'); reveal(); }, reduce ? 150 : 1700);
+      setTimeout(function () { intro.remove(); }, reduce ? 900 : 2500);
+    }
+    seal.addEventListener('click', open);
+    document.getElementById('skip').addEventListener('click', function () {
+      opened = true; intro.classList.add('gone'); reveal();
+      setTimeout(function () { intro.remove(); }, 800);
+    });
+    setTimeout(function () { try { seal.focus({ preventScroll: true }); } catch (e) {} }, 900);
+  })();
+</script>
 </body>
 </html>
