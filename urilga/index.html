@@ -91,7 +91,7 @@
   body.sealed { overflow: hidden; }
   body.sealed .rise, body.sealed .ch, body.sealed .ring path, body.sealed .logo { animation-play-state: paused; }
   .intro {
-    position: fixed; inset: 0; z-index: 50;
+    position: fixed; inset: 0; z-index: 50; overflow: hidden;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px;
     padding: calc(24px + env(safe-area-inset-top, 0px)) 16px calc(24px + env(safe-area-inset-bottom, 0px));
     background:
@@ -103,7 +103,7 @@
   .intro.gone { opacity: 0; visibility: hidden; }
   .intro-top { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(22px, 6.4vw, 30px); text-align: center; text-wrap: balance; transition: opacity .4s; }
   .intro-top small { display: block; font-family: var(--body); font-weight: 500; font-size: 14px; color: var(--chalk-dim); margin-top: 6px; letter-spacing: .02em; }
-  .env { position: relative; width: min(320px, 84vw); aspect-ratio: 3 / 2; perspective: 1200px; filter: drop-shadow(0 26px 30px rgba(0,0,0,.45)); animation: envIn .9s cubic-bezier(.2,.9,.3,1.2) backwards; }
+  .env { position: relative; width: min(320px, 84vw); aspect-ratio: 3 / 2; perspective: 1200px; filter: drop-shadow(0 26px 30px rgba(0,0,0,.45)); margin-top: 96px; }
   @keyframes envIn { from { transform: translateY(40px) rotate(-6deg) scale(.9); opacity: 0; } }
   .env-back { position: absolute; inset: 0; background: #DCD4BD; border-radius: 12px; }
   .env-card {
@@ -157,6 +157,26 @@
   .intro.open .env-card { transform: translateY(-58%); }
   .intro.open .intro-hint, .intro.open .skip { opacity: 0; }
   #confetti { z-index: 60 !important; }
+
+  /* Owl courier */
+  .owl { position: absolute; left: 50%; bottom: calc(100% - 16px); width: 96px; transform: translateX(-50%); z-index: 5; pointer-events: none; }
+  .owl svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .owl .wing { transform-box: fill-box; }
+  .owl .wing-l { transform-origin: 100% 15%; }
+  .owl .wing-r { transform-origin: 0% 15%; }
+  .owl.flying .wing-l { animation: flapL .2s ease-in-out infinite alternate; }
+  .owl.flying .wing-r { animation: flapR .2s ease-in-out infinite alternate; }
+  @keyframes flapL { from { transform: rotate(28deg); } to { transform: rotate(-38deg); } }
+  @keyframes flapR { from { transform: rotate(-28deg); } to { transform: rotate(38deg); } }
+  .owl .lid { transform-box: fill-box; transform-origin: 50% 0; transform: scaleY(0); }
+  .owl.perched .lid { animation: blink 4.2s 1s infinite; }
+  @keyframes blink { 0%, 90%, 100% { transform: scaleY(0); } 93%, 95% { transform: scaleY(1); } }
+  .owl.perched svg { transform-origin: 50% 90%; animation: headTilt 5s ease-in-out infinite; }
+  @keyframes headTilt { 0%, 60%, 100% { transform: rotate(0); } 70% { transform: rotate(-9deg); } 82% { transform: rotate(6deg); } }
+  .intro:not(.landed) .seal { pointer-events: none; animation-play-state: paused; }
+  .intro:not(.landed) .intro-hint { opacity: 0; }
+  .intro-top { transition: opacity .5s; }
+  .intro:not(.landed):not(.nomotion) .intro-top { opacity: .0; }
   .yt { font-size: 12px; line-height: 1.35; color: var(--chalk-dim); }
   .note b { color: var(--marigold); font-weight: 700; }
 
@@ -248,7 +268,7 @@
     .t-place { padding: 20px 18px 22px; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .rise, .ring path, .ch, .logo, .float, .n.flip, .popper, .popper .cone, .popper .bits, .shine, .spark, .flip-hint, .env, .seal, .intro-hint { animation: none !important; }
+    .rise, .ring path, .ch, .logo, .float, .n.flip, .popper, .popper .cone, .popper .bits, .shine, .spark, .flip-hint, .env, .seal, .intro-hint, .owl *, .owl svg { animation: none !important; }
     .ticket, .env-card, .env-flap, .seal { transition-duration: .01s !important; transition-delay: 0s !important; }
     .btn:hover { transform: none; }
   }
@@ -410,11 +430,34 @@
 
 <div class="intro" id="intro" role="dialog" aria-label="Урилга нээх">
   <p class="intro-top">Танд урилга ирлээ<small>141 дүгээр сургуулиас</small></p>
-  <div class="env">
+  <div class="env" id="env">
     <div class="env-back"></div>
     <div class="env-card"><b>Багш нарын баяр</b><span>2026.10.02 · 18:00</span></div>
     <div class="env-front"></div>
     <div class="env-flap"></div>
+    <div class="owl flying" id="owl" aria-hidden="true">
+      <svg viewBox="0 0 100 112">
+        <g class="wing wing-l"><path d="M26 48 C 6 54, 2 82, 14 96 C 22 90, 28 74, 30 56 Z" fill="#9A5A14"/><path d="M14 96 C 16 86, 20 78, 24 70" stroke="#7A460E" stroke-width="2" fill="none" stroke-linecap="round"/></g>
+        <g class="wing wing-r"><path d="M74 48 C 94 54, 98 82, 86 96 C 78 90, 72 74, 70 56 Z" fill="#9A5A14"/><path d="M86 96 C 84 86, 80 78, 76 70" stroke="#7A460E" stroke-width="2" fill="none" stroke-linecap="round"/></g>
+        <ellipse cx="50" cy="66" rx="29" ry="34" fill="#C4781A"/>
+        <ellipse cx="50" cy="77" rx="18" ry="21" fill="#F5E6C4"/>
+        <path d="M42 72 q4 3 8 0 q4 3 8 0 M40 80 q5 3 10 0 q5 3 10 0 M43 88 q3.5 3 7 0 q3.5 3 7 0" stroke="#D9B98A" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+        <circle cx="38" cy="52" r="13" fill="#F8EDD3"/>
+        <circle cx="62" cy="52" r="13" fill="#F8EDD3"/>
+        <circle cx="38" cy="52" r="8" fill="#F7A21B"/><circle cx="62" cy="52" r="8" fill="#F7A21B"/>
+        <circle cx="39" cy="53" r="4.4" fill="#1C1812"/><circle cx="61" cy="53" r="4.4" fill="#1C1812"/>
+        <circle cx="40.6" cy="51.2" r="1.6" fill="#fff"/><circle cx="62.6" cy="51.2" r="1.6" fill="#fff"/>
+        <ellipse class="lid" cx="38" cy="52" rx="9" ry="9" fill="#C4781A"/>
+        <ellipse class="lid" cx="62" cy="52" rx="9" ry="9" fill="#C4781A"/>
+        <path d="M46.5 58 L53.5 58 L50 66 Z" fill="#E4642F"/>
+        <path d="M42 100 l-3 7 M45 100 l0 8 M48 100 l3 7 M52 100 l-3 7 M55 100 l0 8 M58 100 l3 7" stroke="#E4642F" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M36 34 L50 38 L64 34 L64 30 L36 30 Z" fill="#0A281B" stroke="#F3F1E8" stroke-width="1.4" stroke-linejoin="round"/>
+        <path d="M24 26 L50 16 L76 26 L50 36 Z" fill="#1E6B45" stroke="#F3F1E8" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="M50 26 L70 28 L70 40" stroke="#F7A21B" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <circle cx="70" cy="42" r="3" fill="#F7A21B"/>
+        <circle cx="50" cy="26" r="2.2" fill="#F7A21B"/>
+      </svg>
+    </div>
     <button class="seal" id="seal" type="button" aria-label="Урилга нээх"><img id="seal-img" alt=""></button>
   </div>
   <p class="intro-hint">Лацан дээр дарж нээнэ үү</p>
@@ -629,9 +672,43 @@
       try { sessionStorage.setItem('urilga-opened', '1'); } catch (e) {}
     }
     if (seen) { intro.remove(); reveal(); return; }
-    var opened = false;
+    var opened = false, landed = false;
+    var env = document.getElementById('env'), owl = document.getElementById('owl');
+    function land() {
+      landed = true;
+      intro.classList.add('landed');
+      if (reduce || !env.animate) { owl.classList.remove('flying'); owl.classList.add('perched'); owl.style.left = '17%'; owl.style.bottom = 'calc(100% - 8px)'; return; }
+      env.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(9px)' }, { transform: 'translateY(0)' }], { duration: 380, easing: 'ease-out' });
+      var hop = owl.animate([
+        { left: '50%', bottom: 'calc(100% - 16px)' },
+        { left: '38%', bottom: 'calc(100% + 34px)', offset: .5 },
+        { left: '17%', bottom: 'calc(100% - 8px)' }
+      ], { duration: 750, easing: 'ease-in-out', fill: 'forwards' });
+      hop.onfinish = function () { owl.classList.remove('flying'); owl.classList.add('perched'); };
+    }
+    if (reduce || !env.animate) { intro.classList.add('nomotion'); land(); }
+    else {
+      var fly = env.animate([
+        { transform: 'translate(75vw, -75vh) rotate(-12deg) scale(.55)' },
+        { transform: 'translate(28vw, -34vh) rotate(-7deg) scale(.75)', offset: .35 },
+        { transform: 'translate(-14vw, -10vh) rotate(5deg) scale(.92)', offset: .65 },
+        { transform: 'translate(3vw, 2vh) rotate(-2deg) scale(1)', offset: .88 },
+        { transform: 'translate(0, 0) rotate(0) scale(1)' }
+      ], { duration: 2300, easing: 'cubic-bezier(.3,.55,.3,1)' });
+      fly.onfinish = land;
+    }
+    function owlAway() {
+      if (reduce || !owl.animate) { owl.style.visibility = 'hidden'; return; }
+      owl.classList.remove('perched'); owl.classList.add('flying');
+      owl.animate([
+        { transform: 'translateX(-50%) translate(0,0) rotate(0)' },
+        { transform: 'translateX(-50%) translate(-12vw,-16vh) rotate(-10deg)', offset: .35 },
+        { transform: 'translateX(-50%) translate(-70vw,-80vh) rotate(-18deg) scale(.6)' }
+      ], { duration: 1300, easing: 'ease-in', fill: 'forwards' });
+    }
     function open() {
-      if (opened) return; opened = true;
+      if (opened || !landed) return; opened = true;
+      owlAway();
       intro.classList.add('open');
       var r = seal.getBoundingClientRect();
       if (window.inviteBurst) setTimeout(function () { window.inviteBurst(r.left + r.width / 2, r.top + r.height / 2, 80, -Math.PI / 2, 2.6, .9); }, 200);
