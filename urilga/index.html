@@ -177,6 +177,31 @@
   .intro.open .intro-hint, .intro.open .skip { opacity: 0; }
   #confetti { z-index: 60 !important; }
 
+  /* Music */
+  .music { margin-top: 40px; }
+  .music .label { color: var(--chalk-dim); }
+  .yt-wrap { margin-top: 10px; aspect-ratio: 16 / 9; max-width: 100%; border-radius: 16px; overflow: hidden; background: var(--board-3); border: 1.5px solid rgba(243,241,232,.2); }
+  .yt-wrap iframe, .yt-wrap #ytplayer { width: 100%; height: 100%; display: block; border: 0; }
+  .yt-link { display: inline-block; margin-top: 10px; color: var(--marigold); font-weight: 700; font-size: 14px; }
+  .music-pill {
+    position: fixed; left: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 40;
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--board-3); color: var(--chalk); border: 2px solid var(--marigold); border-radius: 999px;
+    padding: 10px 16px 10px 14px; font-family: var(--body); font-size: 14px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 10px 24px -8px rgba(0,0,0,.6); -webkit-tap-highlight-color: transparent;
+  }
+  .music-pill:focus-visible { outline: 3px solid var(--chalk); outline-offset: 3px; }
+  body.sealed .music-pill, .music-pill.off { display: none; }
+  .bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 14px; }
+  .bars i { width: 3px; height: 4px; background: var(--marigold); border-radius: 2px; }
+  .music-pill.playing .bars i { animation: eq .8s ease-in-out infinite alternate; }
+  .music-pill.playing .bars i:nth-child(2) { animation-delay: .2s; }
+  .music-pill.playing .bars i:nth-child(3) { animation-delay: .4s; }
+  .music-pill.playing .bars i:nth-child(4) { animation-delay: .1s; }
+  @keyframes eq { from { height: 3px; } to { height: 14px; } }
+  .music-pill.nudge { animation: pillNudge 1.2s ease-in-out 3; }
+  @keyframes pillNudge { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
   /* Owl courier */
   .owl { position: absolute; left: 50%; bottom: calc(100% - 16px); width: 96px; transform: translateX(-50%); z-index: 5; pointer-events: none; }
   .owl svg { width: 100%; height: auto; display: block; overflow: visible; }
@@ -287,7 +312,7 @@
     .t-place { padding: 20px 18px 22px; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .rise, .ring path, .ch, .logo, .float, .n.flip, .popper, .popper .cone, .popper .bits, .shine, .spark, .flip-hint, .env, .seal, .intro-hint, .owl *, .owl svg { animation: none !important; }
+    .rise, .ring path, .ch, .logo, .float, .n.flip, .popper, .popper .cone, .popper .bits, .shine, .spark, .flip-hint, .env, .seal, .intro-hint, .owl *, .owl svg, .bars i, .music-pill { animation: none !important; }
     .ticket, .env-card, .env-flap, .seal { transition-duration: .01s !important; transition-delay: 0s !important; }
     .btn:hover { transform: none; }
   }
@@ -439,11 +464,22 @@
     <div class="done" id="done" hidden></div>
   </section>
 
+  <section class="music rise d4" id="music">
+    <div class="label">Баярын дуу</div>
+    <div class="yt-wrap"><div id="ytplayer"></div></div>
+    <a class="yt-link" id="ytLink" href="https://www.youtube.com/watch?v=daBROitp3mg" target="_blank" rel="noopener" hidden>YouTube дээр сонсох →</a>
+  </section>
+
   <footer class="sign">
     <span class="h">Хүндэтгэсэн,</span>
     <span class="w">141-р сургуулийн захиргаа, аж ахуйн алба</span>
   </footer>
 </main>
+
+<button class="music-pill" id="musicPill" type="button" aria-pressed="false">
+  <span class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+  <span id="musicLabel">Дуу тоглуулах</span>
+</button>
 
 
 
@@ -635,6 +671,57 @@
 </script>
 
 <script>
+  // Festive song via the official YouTube player
+  (function () {
+    var VIDEO = 'daBROitp3mg';
+    var pill = document.getElementById('musicPill'), label = document.getElementById('musicLabel');
+    var player = null, ready = false, want = false, playing = false, failed = false;
+    function setUI(on) {
+      playing = on;
+      pill.classList.toggle('playing', on);
+      pill.setAttribute('aria-pressed', on ? 'true' : 'false');
+      label.textContent = on ? 'Дуу зогсоох' : 'Дуу тоглуулах';
+    }
+    window.inviteMusic = {
+      play: function () {
+        want = true;
+        if (ready && player) { try { player.unMute(); player.setVolume(80); player.playVideo(); } catch (e) {} }
+        // If the phone blocked automatic start, invite a tap on the music button
+        setTimeout(function () { if (!playing && !failed) pill.classList.add('nudge'); }, 2500);
+      }
+    };
+    pill.addEventListener('click', function () {
+      pill.classList.remove('nudge');
+      if (!ready || !player) { want = true; return; }
+      if (playing) player.pauseVideo(); else { player.unMute(); player.playVideo(); }
+    });
+    window.onYouTubeIframeAPIReady = function () {
+      player = new YT.Player('ytplayer', {
+        videoId: VIDEO,
+        playerVars: { playsinline: 1, rel: 0, modestbranding: 1 },
+        events: {
+          onReady: function () { ready = true; if (want) { try { player.playVideo(); } catch (e) {} } },
+          onStateChange: function (e) {
+            if (e.data === YT.PlayerState.PLAYING) { setUI(true); pill.classList.remove('nudge'); }
+            else if (e.data === YT.PlayerState.PAUSED) setUI(false);
+            else if (e.data === YT.PlayerState.ENDED) { player.seekTo(0); player.playVideo(); }
+          },
+          onError: function () {
+            failed = true; setUI(false);
+            pill.classList.add('off');
+            document.querySelector('.yt-wrap').hidden = true;
+            document.getElementById('ytLink').hidden = false;
+          }
+        }
+      });
+    };
+    var tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    tag.onerror = function () { failed = true; pill.classList.add('off'); document.querySelector('.yt-wrap').hidden = true; document.getElementById('ytLink').hidden = false; };
+    document.head.appendChild(tag);
+  })();
+</script>
+<script>
   // Praise on the back of the ticket: a different one for each visitor
   (function () {
     var list = [
@@ -730,6 +817,7 @@
     }
     function open() {
       if (opened || !landed) return; opened = true;
+      if (window.inviteMusic) window.inviteMusic.play();
       owlAway();
       intro.classList.add('open');
       var r = seal.getBoundingClientRect();
@@ -739,6 +827,7 @@
     }
     seal.addEventListener('click', open);
     document.getElementById('skip').addEventListener('click', function () {
+      if (window.inviteMusic) window.inviteMusic.play();
       opened = true; intro.classList.add('gone'); reveal();
       setTimeout(function () { intro.remove(); }, 800);
     });
