@@ -178,11 +178,8 @@
   #confetti { z-index: 60 !important; }
 
   /* Music */
-  .music { margin-top: 40px; }
-  .music .label { color: var(--chalk-dim); }
-  .yt-wrap { margin-top: 10px; aspect-ratio: 16 / 9; max-width: 100%; border-radius: 16px; overflow: hidden; background: var(--board-3); border: 1.5px solid rgba(243,241,232,.2); }
-  .yt-wrap iframe, .yt-wrap #ytplayer { width: 100%; height: 100%; display: block; border: 0; }
-  .yt-link { display: inline-block; margin-top: 10px; color: var(--marigold); font-weight: 700; font-size: 14px; }
+  .yt-wrap { position: fixed; left: -10000px; top: 0; width: 200px; height: 113px; overflow: hidden; pointer-events: none; }
+  .yt-wrap iframe, .yt-wrap #ytplayer { width: 200px; height: 113px; border: 0; }
   .music-pill {
     position: fixed; left: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 40;
     display: inline-flex; align-items: center; gap: 10px;
@@ -464,11 +461,7 @@
     <div class="done" id="done" hidden></div>
   </section>
 
-  <section class="music rise d4" id="music">
-    <div class="label">Баярын дуу</div>
-    <div class="yt-wrap"><div id="ytplayer"></div></div>
-    <a class="yt-link" id="ytLink" href="https://www.youtube.com/watch?v=daBROitp3mg" target="_blank" rel="noopener" hidden>YouTube дээр сонсох →</a>
-  </section>
+  <div class="yt-wrap" aria-hidden="true"><div id="ytplayer"></div></div>
 
   <footer class="sign">
     <span class="h">Хүндэтгэсэн,</span>
@@ -698,7 +691,7 @@
     window.onYouTubeIframeAPIReady = function () {
       player = new YT.Player('ytplayer', {
         videoId: VIDEO,
-        playerVars: { playsinline: 1, rel: 0, modestbranding: 1 },
+        playerVars: { playsinline: 1, rel: 0, modestbranding: 1, controls: 0 },
         events: {
           onReady: function () { ready = true; if (want) { try { player.playVideo(); } catch (e) {} } },
           onStateChange: function (e) {
@@ -709,15 +702,13 @@
           onError: function () {
             failed = true; setUI(false);
             pill.classList.add('off');
-            document.querySelector('.yt-wrap').hidden = true;
-            document.getElementById('ytLink').hidden = false;
           }
         }
       });
     };
     var tag = document.createElement('script');
     tag.src = 'https://www.youtube.com/iframe_api';
-    tag.onerror = function () { failed = true; pill.classList.add('off'); document.querySelector('.yt-wrap').hidden = true; document.getElementById('ytLink').hidden = false; };
+    tag.onerror = function () { failed = true; pill.classList.add('off'); };
     document.head.appendChild(tag);
   })();
 </script>
